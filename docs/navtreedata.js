@@ -25,13 +25,13 @@
 var NAVTREE =
 [
   [ "Soft2D", "index.html", [
-    [ "manual", "md__home_yuzhang__work_fork_soft2d_docs_manual.html", null ]
+    [ "manual", "a00011.html", null ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"index.html"
+"a00011.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
