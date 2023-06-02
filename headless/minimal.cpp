@@ -6,18 +6,7 @@
 using namespace std;
 
 int main() {
-  TiArch arch;
-  if (std::string(BACKEND_NAME) == "vulkan") {
-    arch = TiArch::TI_ARCH_VULKAN;
-  } else if (std::string(BACKEND_NAME) == "metal") {
-    arch = TiArch::TI_ARCH_METAL;
-  } else {
-    // assert(0);
-  }
-  arch = TiArch::TI_ARCH_VULKAN;
-
-  // Create a compute runtime and an world
-  ti::Runtime runtime(arch);
+  ti::Runtime runtime(TiArch::TI_ARCH_VULKAN);
 
   S2WorldConfig config;
   config.max_allowed_particle_num = 90000;
