@@ -1,6 +1,6 @@
-#include <taichi/taichi.h>
-#include <soft2d/soft2d.h>
 #include "taichi/aot_demo/framework.hpp"
+#include <soft2d/soft2d.h>
+#include <taichi/taichi.h>
 
 using namespace ti::aot_demo;
 using namespace std;
@@ -105,7 +105,7 @@ struct Minimal : public App {
     GraphicsRuntime &runtime = F.runtime();
 
     // Step forward
-    s2_step(world,0.004);
+    s2_step(world, 0.004);
 
     // Get particle position gpu buffer
     TiNdArray particle_x;
@@ -135,6 +135,4 @@ struct Minimal : public App {
   }
 };
 
-std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new Minimal);
-}
+std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new Minimal); }
