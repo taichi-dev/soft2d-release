@@ -1,5 +1,4 @@
-#include "glm/glm.hpp"
-#include <taichi/cpp/taichi.hpp>
+#include <taichi/taichi.h>
 #include <soft2d/soft2d.h>
 #include "taichi/aot_demo/framework.hpp"
 
