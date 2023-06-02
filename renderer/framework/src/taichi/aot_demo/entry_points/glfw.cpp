@@ -124,7 +124,7 @@ int main(int argc, const char **argv) {
 
     // FIXME: maually give a fps limitation because vsync does not work on my
     // laptop std::this_thread::sleep_for(std::chrono::seconds() * wait_time);
-    usleep(1000000 * wait_time);
+    // usleep(1000000 * wait_time);
   }
 
   glfwDestroyWindow(glfw_window);
