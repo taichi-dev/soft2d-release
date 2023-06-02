@@ -1,0 +1,15 @@
+[submodule "renderer/external/VulkanMemoryAllocator"]
+	path = renderer/external/VulkanMemoryAllocator
+	url = git@github.com:GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "renderer/external/glm"]
+	path = renderer/external/glm
+	url = git@github.com:g-truc/glm.git
+[submodule "renderer/external/glfw"]
+	path = renderer/external/glfw
+	url = git@github.com:glfw/glfw.git
+[submodule "renderer/external/glslang"]
+	path = renderer/external/glslang
+	url = git@github.com:KhronosGroup/glslang.git
+[submodule "renderer/external/graphi-t"]
+	path = renderer/external/graphi-t
+	url = git@github.com:PENGUINLIONG/graphi-t.git
