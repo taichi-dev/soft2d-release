@@ -4,7 +4,6 @@
 
 using namespace ti::aot_demo;
 using namespace std;
-// using namespace soft2d;
 
 constexpr int win_width = 800;
 constexpr int win_height = 800;

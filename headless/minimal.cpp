@@ -1,8 +1,6 @@
+#include <iostream>
 #include <soft2d/soft2d.h>
 #include <taichi/cpp/taichi.hpp>
-#include <taichi/taichi.h>
-
-#include <iostream>
 using namespace std;
 
 int main() {
