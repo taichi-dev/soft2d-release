@@ -4,11 +4,16 @@
 using namespace std;
 
 int main() {
-  ti::Runtime runtime(TiArch::TI_ARCH_VULKAN);
 
+  TiArch arch = TiArch::TI_ARCH_VULKAN;
+  // Create a taichi runtime
+  ti::Runtime runtime(arch);
+
+  // Specify the world configuration
   S2WorldConfig config;
   config.max_allowed_particle_num = 90000;
   config.max_allowed_body_num = 10000;
+  config.max_allowed_element_num = 10000;
   config.max_allowed_trigger_num = 10000;
   config.grid_resolution = 128;
 
@@ -35,10 +40,15 @@ int main() {
   config.collision_penalty_force_scale_along_velocity_dir = 0.1f;
   config.fine_grid_scale = 4;
 
+  // Create a world
   S2World world = s2_create_world(arch, runtime, config);
+
+  // Simulate the world for 100 steps
+  float time_step = 2e-3f;
   for (int i = 0; i < 100; ++i) {
-    s2_step(world, 1.6e-2f);
+    s2_step(world, time_step);
   }
+
   std::cout << "Hello, world!" << std::endl;
   return 0;
 }
