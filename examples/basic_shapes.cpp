@@ -9,7 +9,7 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct Minimal : public App {
+struct BasicShapes : public App {
 
   S2World world;
 
@@ -42,10 +42,9 @@ struct Minimal : public App {
 
     // Soft2D initialization
     // Create a world
-    S2WorldConfig config{};
+    S2WorldConfig config;
     config.max_allowed_particle_num = 90000;
     config.max_allowed_body_num = 10000;
-    config.max_allowed_element_num = 10000;
     config.max_allowed_trigger_num = 10000;
     config.grid_resolution = 128;
 
@@ -62,7 +61,7 @@ struct Minimal : public App {
 
     S2Vec2 gravity;
     gravity.x = 0.0f;
-    gravity.y = -9.8f;
+    gravity.y = 0.0f;
     config.gravity = gravity;
 
     config.enable_debugging = false;
@@ -88,11 +87,11 @@ struct Minimal : public App {
 
     S2Material material;
     material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    material.density = 1000.0f;
-    material.youngs_modulus = 0.3f;
+    material.density = 1.0f;
+    material.youngs_modulus = 1e3f;
     material.poissons_ratio = 0.2f;
 
-    S2Kinematics kinematics{};
+    S2Kinematics kinematics;
     S2Vec2 center;
     center.x = 0.5f;
     center.y = 0.5f;
@@ -135,4 +134,6 @@ struct Minimal : public App {
   }
 };
 
-std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new Minimal); }
+std::unique_ptr<App> create_app() {
+  return std::unique_ptr<App>(new BasicShapes);
+}
