@@ -13,9 +13,9 @@ set(LIB_NAME soft2d_examples)
 # endif()
 
 # Add PROJECT_ROOT_PATH definition
-set(PROJECT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
-add_definitions(-DPROJECT_ROOT_PATH="${PROJECT_ROOT_PATH}")
-add_definitions(-DBACKEND_NAME="${BACKEND_NAME}")
+# set(PROJECT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+# add_definitions(-DPROJECT_ROOT_PATH="${PROJECT_ROOT_PATH}")
+# add_definitions(-DBACKEND_NAME="${BACKEND_NAME}")
 
 set(TAICHI_C_API_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/taichi_c_api")
 
@@ -30,7 +30,7 @@ if (NOT EXISTS ${taichi_c_api})
 endif()
 
 find_library(soft2d soft2d HINTS
-${CMAKE_CURRENT_SOURCE_DIR}/lib
+${CMAKE_CURRENT_SOURCE_DIR}/soft2d/lib
 # CMake find root is overriden by Android toolchain.
 NO_CMAKE_FIND_ROOT_PATH)
 if (NOT EXISTS ${soft2d})
@@ -126,7 +126,7 @@ foreach(file ${example_cpps})
 
     add_executable(${example_name} ${file})
     target_link_libraries(${example_name} PUBLIC ${soft2d})
-    target_include_directories(${example_name} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_include_directories(${example_name} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/include")
 
     # headless entrypoint
     # target_link_libraries(${example_name} PUBLIC ${Vulkan_LIBRARY})
