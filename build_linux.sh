@@ -56,8 +56,13 @@ cd build
 cmake .. -DEXAMPLE_NAME=${EXAMPLE_NAME}
 make -j7
 
-if [ "${EXAMPLE_NAME}" = "" ]; then
-    EXAMPLE_NAME="minimal"
+if [ $? -eq 0 ]; then
+  if [ "${EXAMPLE_NAME}" = "" ]; then
+      EXAMPLE_NAME="minimal"
+  fi
+  echo "./${EXAMPLE_NAME}"
+  ./${EXAMPLE_NAME}
+else
+    echo "Building fails!"
+    exit 1
 fi
-echo "./${EXAMPLE_NAME}"
-./${EXAMPLE_NAME}
