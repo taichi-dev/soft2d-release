@@ -48,6 +48,8 @@ struct Minimal : public App {
     config.max_allowed_element_num = 10000;
     config.max_allowed_trigger_num = 10000;
     config.grid_resolution = 128;
+    config.out_world_boundary_policy =
+        S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING;
 
     S2Vec2 offset;
     offset.x = 0.0f;
@@ -72,7 +74,7 @@ struct Minimal : public App {
     config.collision_penalty_force_scale_along_velocity_dir = 0.1f;
     config.fine_grid_scale = 4;
 
-    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, config);
+    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
     // Create a box body
     S2BoxShape box_shape;
@@ -86,7 +88,7 @@ struct Minimal : public App {
     shape_union.box = box_shape;
     shape.shape_union = shape_union;
 
-    S2Material material;
+    S2Material material{};
     material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
     material.density = 1000.0f;
     material.youngs_modulus = 0.3f;

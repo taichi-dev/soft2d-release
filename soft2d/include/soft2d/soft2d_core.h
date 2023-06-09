@@ -212,10 +212,10 @@ typedef struct S2EllipseShape {
 
 /// Structure `S2CapsuleShape`
 ///
-/// A capsule shape.
+/// A capsule shape. The default pose is lying along the x-axis.
 typedef struct S2CapsuleShape {
-  /// The half extent of the central rectangle.
-  float rect_half_extent;
+  /// The half length of the central rectangle's width.
+  float rect_half_length;
   /// The radius of caps on the two sides.
   float cap_radius;
 } S2CapsuleShape;
@@ -227,7 +227,7 @@ typedef struct S2CapsuleShape {
 /// should be in a counter-clockwise order.
 typedef struct S2PolygonShape {
   /// The number of vertices in the vertex buffer.
-  int32_t vertex_num;
+  uint32_t vertex_num;
   /// A user-specified vertex buffer.
   void *vertices;
 } S2PolygonShape;
@@ -339,7 +339,7 @@ typedef enum S2CollisionType {
 typedef struct S2CollisionParameter {
   /// Collision's type.
   S2CollisionType collision_type;
-  /// The coefficient of friction. A common range is [-1, 1]. Higher values of
+  /// The coefficient of friction. A common range is [0, 1]. Higher values of
   /// `friction_coeff` result in increased loss of velocity when particles
   /// 'slide' across the collider's surface.
   float friction_coeff;
@@ -376,6 +376,9 @@ typedef struct S2WorldConfig {
   /// World's gravity acceleration. A commonly used value is `(0, -9.8)` (meters
   /// per second squared).
   S2Vec2 gravity;
+  /// The behavior when a body leaves out of the world. See
+  /// #S2OutWorldBoundaryPolicy.
+  S2OutWorldBoundaryPolicy out_world_boundary_policy;
   /// Enable debugging or not. Enabling this option allows users to export
   /// additional buffers (See #S2BufferName) for debugging and visualization,
   /// consuming more GPU memory.
@@ -410,7 +413,7 @@ typedef void (*S2ParticleManipulationCallback)(
     /// A particle buffer provided by soft2d.
     S2Particle *particles,
     /// The number of particles within the particle buffer.
-    int32_t size);
+    uint32_t size);
 
 /// Enumeration `S2BufferName`
 ///
@@ -463,7 +466,7 @@ S2_API S2World S2_API_CALL s2_create_world(
     /// An instance of the taichi runtime.
     TiRuntime runtime,
     /// World's configuration.
-    S2WorldConfig config);
+    const S2WorldConfig *config);
 
 /// Function `s2_destroy_world`
 ///
@@ -500,7 +503,7 @@ S2_API S2Body S2_API_CALL s2_create_custom_body(
     /// Body's kinematic properties.
     const S2Kinematics *kinematics,
     /// The number of particles in the `particles_in_local_space` buffer.
-    int32_t particle_num,
+    uint32_t particle_num,
     /// User-specified particles data. This should be provided as a pointer of C
     /// #S2Vec2 array. This array stores the local positions of all particles.
     void *particles_in_local_space,
@@ -519,12 +522,12 @@ S2_API S2Body S2_API_CALL s2_create_mesh_body(
     /// Body's kinematic properties.
     const S2Kinematics *kinematics,
     /// The number of vertices in the `particles_in_local_space` buffer.
-    int32_t particle_num,
+    uint32_t particle_num,
     /// The mesh's vertices data. This should be provided as a pointer of C
     /// #S2Vec2 array. This array stores the local positions of all particles.
     void *particles_in_local_space,
     /// The number of indices in the `indices` buffer.
-    int32_t index_num,
+    uint32_t index_num,
     /// The mesh's indices data. This should be provided as a pointer of C `int`
     /// array. This array stores the indices of all triangle elements. Indices
     /// for a triangle element should be in a counter-clockwise winding order.
@@ -536,8 +539,6 @@ S2_API S2Body S2_API_CALL s2_create_mesh_body(
 ///
 /// Remove a body from the world and destroy it.
 S2_API void S2_API_CALL s2_destroy_body(
-    /// World handle.
-    S2World world,
     /// The body to be destroyed.
     S2Body body);
 
@@ -558,8 +559,6 @@ S2_API S2Collider S2_API_CALL s2_create_collider(
 ///
 /// Remove a collider from the world and destroy it.
 S2_API void S2_API_CALL s2_destroy_collider(
-    /// World handle.
-    S2World world,
     /// The collider to be destroyed.
     S2Collider collider);
 
@@ -578,8 +577,6 @@ S2_API S2Trigger S2_API_CALL s2_create_trigger(
 ///
 /// Remove a trigger from the world and destroy it.
 S2_API void S2_API_CALL s2_destroy_trigger(
-    /// World handle.
-    S2World world,
     /// The trigger to be destroyed.
     S2Trigger trigger);
 
@@ -625,7 +622,7 @@ S2_API void S2_API_CALL s2_set_gravity(
     /// World handle.
     S2World world,
     /// The new value of gravity.
-    S2Vec2 gravity);
+    const S2Vec2 *gravity);
 
 /// Function `s2_set_world_query_enabled`
 ///
@@ -641,14 +638,14 @@ S2_API void S2_API_CALL s2_set_world_query_enabled(
 /// Set a world's offset.
 S2_API void S2_API_CALL s2_set_world_offset(
     /// World handle.
-    S2World world, S2Vec2 offset);
+    S2World world, const S2Vec2 *offset);
 
 /// Function `s2_set_world_extent`
 ///
 /// Set a world's extent.
 S2_API void S2_API_CALL s2_set_world_extent(
     /// World handle.
-    S2World world, S2Vec2 extent);
+    S2World world, const S2Vec2 *extent);
 
 /// Function `s2_set_mesh_body_force_scale`
 ///
@@ -666,9 +663,9 @@ S2_API void S2_API_CALL s2_apply_impulse_in_circular_area(
     /// World handle.
     S2World world,
     /// Applied impulse, equivalent to applied_force * applied_time.
-    S2Vec2 impulse,
+    const S2Vec2 *impulse,
     /// The center of the specified circular area.
-    S2Vec2 center,
+    const S2Vec2 *center,
     /// The radius of the specified circular area.
     float radius);
 
@@ -688,20 +685,16 @@ S2_API void S2_API_CALL s2_get_buffer(
 ///
 /// Apply a linear impulse to all particles within a body.
 S2_API void S2_API_CALL s2_apply_linear_impulse(
-    /// World handle.
-    S2World world,
     /// Body handle.
     S2Body body,
     /// Applied linear impulse.
-    S2Vec2 impulse);
+    const S2Vec2 *impulse);
 
 /// Function `s2_apply_angular_impulse`
 ///
 /// Apply an angular impulse to all particles within a body. The average value
 /// of positions of all particles is treated as the body's center.
 S2_API void S2_API_CALL s2_apply_angular_impulse(
-    /// World handle.
-    S2World world,
     /// Body handle.
     S2Body body,
     /// Applied angular impulse.
@@ -711,12 +704,19 @@ S2_API void S2_API_CALL s2_apply_angular_impulse(
 ///
 /// Set a body's physical material.
 S2_API void S2_API_CALL s2_set_body_material(
-    /// World handle.
-    S2World world,
     /// Body handle.
     S2Body body,
     /// The new value of material.
-    S2Material material);
+    const S2Material *material);
+
+/// Function `s2_set_body_tag`
+///
+/// Set all particles' tags in a body to a single value.
+S2_API void S2_API_CALL s2_set_body_tag(
+    /// Body handle.
+    S2Body body,
+    /// The new value of tag.
+    uint32_t tag);
 
 /// Function `s2_set_collider_position`
 ///
@@ -725,7 +725,7 @@ S2_API void S2_API_CALL s2_set_collider_position(
     /// Collider handle.
     S2Collider collider,
     /// The new value of position.
-    S2Vec2 position);
+    const S2Vec2 *position);
 
 /// Function `s2_get_collider_position`
 ///
@@ -757,7 +757,7 @@ S2_API void S2_API_CALL s2_set_collider_linear_velocity(
     /// Collider handle.
     S2Collider collider,
     /// The new value of linear velocity.
-    S2Vec2 linear_velocity);
+    const S2Vec2 *linear_velocity);
 
 /// Function `s2_get_collider_linear_velocity`
 ///
@@ -789,7 +789,7 @@ S2_API void S2_API_CALL s2_set_trigger_position(
     /// Trigger handle.
     S2Trigger trigger,
     /// The new value of position.
-    S2Vec2 position);
+    const S2Vec2 *position);
 
 /// Function `s2_get_trigger_position`
 ///
@@ -819,8 +819,6 @@ S2_API float S2_API_CALL s2_get_trigger_rotation(
 /// Query whether there are particles in a trigger area. This function works
 /// only when `S2WorldConfig.enable_world_query` is true.
 S2_API uint32_t S2_API_CALL s2_query_trigger_overlapped(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger);
 
@@ -831,8 +829,6 @@ S2_API uint32_t S2_API_CALL s2_query_trigger_overlapped(
 /// mask) == tag`. This function works only when
 /// `S2WorldConfig.enable_world_query` is true.
 S2_API uint32_t S2_API_CALL s2_query_trigger_overlapped_by_tag(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger,
     /// User-specified tag.
@@ -845,8 +841,6 @@ S2_API uint32_t S2_API_CALL s2_query_trigger_overlapped_by_tag(
 /// Query the number of particles in a trigger area. This function works only
 /// when `S2WorldConfig.enable_world_query` is true.
 S2_API uint32_t S2_API_CALL s2_query_particle_num_in_trigger(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger);
 
@@ -857,8 +851,6 @@ S2_API uint32_t S2_API_CALL s2_query_particle_num_in_trigger(
 /// mask) == tag`. This function works only when
 /// `S2WorldConfig.enable_world_query` is true.
 S2_API uint32_t S2_API_CALL s2_query_particle_num_in_trigger_by_tag(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger,
     /// User-specified tag.
@@ -871,8 +863,6 @@ S2_API uint32_t S2_API_CALL s2_query_particle_num_in_trigger_by_tag(
 /// Remove all particles in a trigger area from the world. This function works
 /// only when `S2WorldConfig.enable_world_query` is true.
 S2_API void S2_API_CALL s2_remove_particles_in_trigger(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger);
 
@@ -883,8 +873,6 @@ S2_API void S2_API_CALL s2_remove_particles_in_trigger(
 /// & mask) == tag`. This function works only when
 /// `S2WorldConfig.enable_world_query` is true.
 S2_API void S2_API_CALL s2_remove_particles_in_trigger_by_tag(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger,
     /// User-specified tag.
@@ -906,8 +894,6 @@ S2_API void S2_API_CALL s2_remove_particles_in_trigger_by_tag(
 /// See `S2Particle` and #S2ParticleManipulationCallback for more details.
 /// This function works only when `S2WorldConfig.enable_world_query` is true.
 S2_API void S2_API_CALL s2_manipulate_particles_in_trigger(
-    /// World handle.
-    S2World world,
     /// Trigger handle.
     S2Trigger trigger,
     /// User-specified callback function. This parameter should be a function

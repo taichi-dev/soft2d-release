@@ -163,10 +163,6 @@ struct BasicShapes : public App {
     polygon_kinematics.center = vec2(0.75f, 0.5f);
     polygon_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
     make_body(world, polygon_material, polygon_kinematics, polygon_shape);
-
-    // Add a ground
-    make_collider(world, make_kinematics({0.5f, 0.0f}),
-                  make_box_shape(vec2(0.5f, 0.01f)));
   }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();

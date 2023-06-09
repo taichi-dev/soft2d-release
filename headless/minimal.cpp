@@ -10,7 +10,7 @@ int main() {
   ti::Runtime runtime(arch);
 
   // Specify the world configuration
-  S2WorldConfig config;
+  S2WorldConfig config{};
   config.max_allowed_particle_num = 90000;
   config.max_allowed_body_num = 10000;
   config.max_allowed_element_num = 10000;
