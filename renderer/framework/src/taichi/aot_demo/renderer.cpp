@@ -695,9 +695,9 @@ void Renderer::begin_render() {
   std::array<VkClearValue, 2> ccvs{};
   {
     VkClearValue &ccv = ccvs.at(0);
-    ccv.color.float32[0] = 0.0f;
-    ccv.color.float32[1] = 0.0f;
-    ccv.color.float32[2] = 0.0f;
+    ccv.color.float32[0] = 0.3f;
+    ccv.color.float32[1] = 0.3f;
+    ccv.color.float32[2] = 0.3f;
     ccv.color.float32[3] = 1.0f;
   }
   {
