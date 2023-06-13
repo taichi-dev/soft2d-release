@@ -259,7 +259,7 @@ try_another_physical_device:
   // TODO: (penguinliong) Export from Taichi?
   VkSamplerCreateInfo sci{};
   sci.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-  sci.magFilter = VK_FILTER_LINEAR;
+  sci.magFilter = VK_FILTER_NEAREST;
   sci.maxLod = VK_LOD_CLAMP_NONE;
 
   VkSampler sampler = VK_NULL_HANDLE;
@@ -853,7 +853,7 @@ void Renderer::present_to_surface() {
   vkCmdBlitImage(command_buffer, color_attachment_,
                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, swapchain_image,
                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &ib,
-                 VK_FILTER_LINEAR);
+                 VK_FILTER_NEAREST);
 
   {
     VkImageMemoryBarrier imb{};
