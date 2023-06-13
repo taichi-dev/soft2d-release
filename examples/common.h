@@ -1,4 +1,5 @@
 #include <soft2d/soft2d.h>
+#include <taichi/taichi.h>
 
 inline S2Vec2 vec2(float x, float y) {
   S2Vec2 out{};
@@ -111,9 +112,10 @@ make_kinematics(S2Vec2 center, float rotation = 0.0f,
   return out;
 }
 
-inline S2Material make_material(float density, float youngs_modulus,
-                                float poissons_ratio) {
+inline S2Material make_material(S2MaterialType type, float density,
+                                float youngs_modulus, float poissons_ratio) {
   S2Material out{};
+  out.type = type;
   out.density = density;
   out.youngs_modulus = youngs_modulus;
   out.poissons_ratio = poissons_ratio;
@@ -164,4 +166,18 @@ inline S2Trigger make_trigger(S2World world, S2Kinematics kinematics,
   S2Trigger out{};
   out = s2_create_trigger(world, &kinematics, &shape);
   return out;
+}
+
+inline void ndarray_data_copy(const TiRuntime &runtime,
+                              const TiNdArray &dst_arr,
+                              const TiNdArray &src_arr, size_t size_in_bytes) {
+  TiMemorySlice src;
+  src.memory = src_arr.memory;
+  src.offset = 0;
+  src.size = size_in_bytes;
+  TiMemorySlice dst;
+  dst.memory = dst_arr.memory;
+  dst.offset = 0;
+  dst.size = size_in_bytes;
+  ti_copy_memory_device_to_device(runtime, &dst, &src);
 }

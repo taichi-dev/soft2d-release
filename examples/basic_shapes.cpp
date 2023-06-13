@@ -3,55 +3,12 @@
 #include <taichi/taichi.h>
 #include <soft2d/soft2d.h>
 #include "common.h"
+#include "globals.h"
 #include "taichi/aot_demo/framework.hpp"
 // clang-format on
 
 using namespace ti::aot_demo;
 using namespace std;
-
-template <typename T>
-void interchange_vulkan_ndarray_texture(GraphicsRuntime &g_runtime,
-                                        ti::Texture &vulkan_texture,
-                                        ti::Runtime &vulkan_runtime,
-                                        ti::NdArray<T> &vulkan_ndarray,
-                                        bool texture_to_ndarray) {
-  // Get Vulkan Ndarray Interop Info
-  TiVulkanMemoryInteropInfo vulkan_interop_info;
-  ti_export_vulkan_memory(vulkan_runtime.runtime(),
-                          vulkan_ndarray.memory().memory(),
-                          &vulkan_interop_info);
-
-  VkBuffer ndarray_buffer = vulkan_interop_info.buffer;
-
-  uint32_t width =
-      vulkan_ndarray.shape().dim_count > 0 ? vulkan_ndarray.shape().dims[0] : 1;
-  uint32_t height =
-      vulkan_ndarray.shape().dim_count > 1 ? vulkan_ndarray.shape().dims[1] : 1;
-  uint32_t channel =
-      vulkan_ndarray.shape().dim_count > 2 ? vulkan_ndarray.shape().dims[2] : 1;
-
-  // Get VkImage
-  VkImageLayout image_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-  g_runtime.transition_image(vulkan_texture.image(),
-                             TI_IMAGE_LAYOUT_TRANSFER_DST);
-  if (texture_to_ndarray) {
-    image_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    g_runtime.transition_image(vulkan_texture.image(),
-                               TI_IMAGE_LAYOUT_TRANSFER_SRC);
-  }
-
-  TiVulkanImageInteropInfo interop_info;
-  ti_export_vulkan_image(g_runtime, vulkan_texture.image().image(),
-                         &interop_info);
-
-  VkImage vk_image = interop_info.image;
-  VkDevice vk_device = g_runtime.renderer().device_;
-  VkCommandPool cmd_pool = g_runtime.renderer().command_pool_;
-  VkQueue graphics_queue = g_runtime.renderer().queue_;
-  copyImage2Buffer(vk_device, cmd_pool, graphics_queue, vk_image,
-                   ndarray_buffer, image_layout, width, height, channel,
-                   texture_to_ndarray /*image_to_buffer*/);
-}
 
 constexpr int win_width = 800;
 constexpr int win_height = 800;
@@ -91,52 +48,10 @@ struct BasicShapes : public App {
 
     // Soft2D initialization
     // Create a world
-    S2WorldConfig config{};
-    config.max_allowed_particle_num = 90000;
-    config.max_allowed_body_num = 10000;
-    config.max_allowed_element_num = 10000;
-    config.max_allowed_trigger_num = 10000;
-    config.grid_resolution = 128;
-    config.out_world_boundary_policy =
-        S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING;
-
-    S2Vec2 offset;
-    offset.x = 0.0f;
-    offset.y = 0.0f;
-    config.offset = offset;
-
-    S2Vec2 extent;
-    extent.x = 1.0f;
-    extent.y = 1.0f;
-    config.extent = extent;
-    config.substep_dt = 1e-4f;
-
-    S2Vec2 gravity;
-    gravity.x = 0.0f;
-    gravity.y = -9.8f;
-    config.gravity = gravity;
-
-    config.enable_debugging = false;
-    config.enable_world_query = false;
-    config.mesh_body_force_scale = 1e6f;
-    config.collision_penalty_force_scale_along_normal_dir = 0.1f;
-    config.collision_penalty_force_scale_along_velocity_dir = 0.1f;
-    config.fine_grid_scale = 4;
+    S2WorldConfig config = default_world_config;
 
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    // Box
-    // Create a box body
-    // S2BoxShape box_shape;
-    // S2Vec2 half_extent;
-    // half_extent.x = 0.03f;
-    // half_extent.y = 0.02f;
-    // box_shape.half_extent = half_extent;
-    // S2Shape shape;
-    // shape.type = S2ShapeType::S2_SHAPE_TYPE_BOX;
-    // S2ShapeUnion shape_union;
-    // shape_union.box = box_shape;
-    // shape.shape_union = shape_union;
     S2Shape shape = make_box_shape(vec2(0.03f, 0.02f));
 
     S2Material material;
