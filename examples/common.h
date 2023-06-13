@@ -141,6 +141,16 @@ inline S2Body create_custom_body(S2World world, S2Material material,
   return out;
 }
 
+inline S2Body create_custom_body_from_vector(
+    S2World world, S2Material material, S2Kinematics kinematics,
+    std::vector<S2Vec2> particles_in_local_space, uint32_t tag = 0) {
+  S2Body out{};
+  out = s2_create_custom_body(world, &material, &kinematics,
+                              particles_in_local_space.size(),
+                              particles_in_local_space.data(), tag);
+  return out;
+}
+
 inline S2Body create_mesh_body(S2World world, S2Material material,
                                S2Kinematics kinematics, uint32_t vertex_num,
                                void *vertices_in_local_space,
