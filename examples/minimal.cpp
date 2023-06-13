@@ -1,6 +1,10 @@
-#include "taichi/aot_demo/framework.hpp"
-#include <soft2d/soft2d.h>
+// avoid clang-format disorders headers
+// clang-format off
 #include <taichi/taichi.h>
+#include <soft2d/soft2d.h>
+#include "common.h"
+#include "taichi/aot_demo/framework.hpp"
+// clang-format on
 
 using namespace ti::aot_demo;
 using namespace std;
@@ -125,7 +129,7 @@ struct Minimal : public App {
     ti_copy_memory_device_to_device(runtime, &dst, &src);
 
     // Since taichi and renderer use different command buffers, we must
-    // explictly use flushing (submitting taichi's command list) here, which
+    // explicitly use flushing (submitting taichi's command list) here, which
     // provides a semaphore between two command buffers.
     runtime.flush();
 

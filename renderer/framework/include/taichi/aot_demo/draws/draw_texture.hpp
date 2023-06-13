@@ -13,6 +13,9 @@ class DrawTextureBuilder {
 
   TiTexture texture_ = {};
 
+  bool is_single_channel_{false};
+  glm::vec3 color_{0};
+
 public:
   DrawTextureBuilder(const std::shared_ptr<Renderer> &renderer,
                      const ti::Texture &texture)
@@ -21,6 +24,16 @@ public:
     texture_ = texture;
 
     assert(texture.texture().dimension == TI_IMAGE_DIMENSION_2D);
+  }
+
+  // color for single channel texture
+  Self color(const glm::vec3 &color_) {
+    this->color_ = color_;
+    return *this;
+  }
+  Self is_single_channel() {
+    this->is_single_channel_ = true;
+    return *this;
   }
 
   std::unique_ptr<GraphicsTask> build();

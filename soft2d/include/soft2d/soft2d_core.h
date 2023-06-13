@@ -681,6 +681,13 @@ S2_API void S2_API_CALL s2_get_buffer(
     /// A pointer to a `TiNdArray` to store the internal buffer reference.
     TiNdArray *buffer);
 
+/// Function `s2_export_buffer_to_texture`
+S2_API void S2_API_CALL s2_export_buffer_to_texture(S2World world,
+                                                    S2BufferName buffer_name,
+                                                    S2Bool y_flipped,
+                                                    float scale,
+                                                    const TiTexture *texture);
+
 /// Function `s2_apply_linear_impulse`
 ///
 /// Apply a linear impulse to all particles within a body.

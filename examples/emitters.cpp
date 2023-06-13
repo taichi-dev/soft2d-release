@@ -5,6 +5,7 @@
 #include "common.h"
 #include "globals.h"
 #include "taichi/aot_demo/framework.hpp"
+#include "emitter.h"
 // clang-format on
 
 using namespace ti::aot_demo;
@@ -14,9 +15,10 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct Colliders : public App {
+struct BodyEmitters : public App {
 
   S2World world;
+  Emitter emitter;
 
   std::unique_ptr<GraphicsTask> draw_points;
   std::unique_ptr<GraphicsTask> draw_texture;
@@ -106,77 +108,31 @@ struct Colliders : public App {
     S2Kinematics kinematics{};
 
     kinematics.center = vec2(0.3f, 0.5f);
+    kinematics.linear_velocity = vec2(0.0f, 0.0f);
     kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
 
-    make_body(world, material, kinematics, shape);
+    // make_body(world, material, kinematics, shape);
+    emitter = Emitter(world, material, kinematics, shape);
 
-    // Circle body
-    S2Shape circle_shape = make_circle_shape(0.03f);
-
-    S2Material circle_material{};
-    circle_material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    circle_material.density = 1000.0f;
-    circle_material.youngs_modulus = 1.0f;
-    circle_material.poissons_ratio = 0.2f;
-
-    S2Kinematics circle_kinematics{};
-    circle_kinematics.center = vec2(0.4f, 0.5f);
-    circle_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, circle_material, circle_kinematics, circle_shape);
-
-    // Ellipse body
-    S2Shape ellipse_shape = make_ellipse_shape(0.03f, 0.02f);
-
-    S2Material ellipse_material{};
-    ellipse_material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    ellipse_material.density = 1000.0f;
-    ellipse_material.youngs_modulus = 1.0f;
-    ellipse_material.poissons_ratio = 0.2f;
-
-    S2Kinematics ellipse_kinematics{};
-    ellipse_kinematics.center = vec2(0.5f, 0.5f);
-    ellipse_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, ellipse_material, ellipse_kinematics, ellipse_shape);
-
-    // Capsule body
-    S2Shape capsule_shape = make_capsule_shape(0.03f, 0.02f);
-
-    S2Material capsule_material{};
-    capsule_material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    capsule_material.density = 1000.0f;
-    capsule_material.youngs_modulus = 1.0f;
-    capsule_material.poissons_ratio = 0.2f;
-
-    S2Kinematics capsule_kinematics{};
-    capsule_kinematics.center = vec2(0.6f, 0.5f);
-    capsule_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, capsule_material, capsule_kinematics, capsule_shape);
-
-    // polygon body
-    auto polygon_vertices = std::vector<S2Vec2>{
-        {-0.05, -0.05},   {-0.015, -0.025}, {0.0, -0.05},   {0.0125, 0.0125},
-        {0.0125, 0.0375}, {-0.0375, 0.025}, {-0.05625, 0.0}};
-    S2Shape polygon_shape =
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size());
-
-    S2Material polygon_material{};
-    polygon_material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    polygon_material.density = 1000.0f;
-    polygon_material.youngs_modulus = 1.0f;
-    polygon_material.poissons_ratio = 0.2f;
-
-    S2Kinematics polygon_kinematics{};
-    polygon_kinematics.center = vec2(0.75f, 0.5f);
-    polygon_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, polygon_material, polygon_kinematics, polygon_shape);
-
-    // Add a ground
+    // Add the boundary
+    // bottom
     make_collider(world, make_kinematics({0.5f, 0.0f}),
                   make_box_shape(vec2(0.5f, 0.01f)));
+    // top
+    make_collider(world, make_kinematics({0.5f, 1.0f}),
+                  make_box_shape(vec2(0.5f, 0.01f)));
+    // left
+    make_collider(world, make_kinematics({0.0f, 0.5f}),
+                  make_box_shape(vec2(0.01f, 0.5f)));
+    // right
+    make_collider(world, make_kinematics({1.0f, 0.5f}),
+                  make_box_shape(vec2(0.01f, 0.5f)));
   }
+  int frame = 0;
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
+    emitter.Update(frame);
     // Step forward
     s2_step(world, 0.004);
 
@@ -206,6 +162,7 @@ struct Colliders : public App {
     // provides a semaphore between two command buffers.
     runtime.flush();
 
+    frame += 1;
     return true;
   }
   virtual void render() override final {
@@ -216,5 +173,5 @@ struct Colliders : public App {
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new Colliders);
+  return std::unique_ptr<App>(new BodyEmitters);
 }

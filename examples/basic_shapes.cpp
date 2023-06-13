@@ -1,10 +1,57 @@
+// avoid clang-format disorders headers
+// clang-format off
+#include <taichi/taichi.h>
+#include <soft2d/soft2d.h>
 #include "common.h"
 #include "taichi/aot_demo/framework.hpp"
-#include <soft2d/soft2d.h>
-#include <taichi/taichi.h>
+// clang-format on
 
 using namespace ti::aot_demo;
 using namespace std;
+
+template <typename T>
+void interchange_vulkan_ndarray_texture(GraphicsRuntime &g_runtime,
+                                        ti::Texture &vulkan_texture,
+                                        ti::Runtime &vulkan_runtime,
+                                        ti::NdArray<T> &vulkan_ndarray,
+                                        bool texture_to_ndarray) {
+  // Get Vulkan Ndarray Interop Info
+  TiVulkanMemoryInteropInfo vulkan_interop_info;
+  ti_export_vulkan_memory(vulkan_runtime.runtime(),
+                          vulkan_ndarray.memory().memory(),
+                          &vulkan_interop_info);
+
+  VkBuffer ndarray_buffer = vulkan_interop_info.buffer;
+
+  uint32_t width =
+      vulkan_ndarray.shape().dim_count > 0 ? vulkan_ndarray.shape().dims[0] : 1;
+  uint32_t height =
+      vulkan_ndarray.shape().dim_count > 1 ? vulkan_ndarray.shape().dims[1] : 1;
+  uint32_t channel =
+      vulkan_ndarray.shape().dim_count > 2 ? vulkan_ndarray.shape().dims[2] : 1;
+
+  // Get VkImage
+  VkImageLayout image_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+  g_runtime.transition_image(vulkan_texture.image(),
+                             TI_IMAGE_LAYOUT_TRANSFER_DST);
+  if (texture_to_ndarray) {
+    image_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    g_runtime.transition_image(vulkan_texture.image(),
+                               TI_IMAGE_LAYOUT_TRANSFER_SRC);
+  }
+
+  TiVulkanImageInteropInfo interop_info;
+  ti_export_vulkan_image(g_runtime, vulkan_texture.image().image(),
+                         &interop_info);
+
+  VkImage vk_image = interop_info.image;
+  VkDevice vk_device = g_runtime.renderer().device_;
+  VkCommandPool cmd_pool = g_runtime.renderer().command_pool_;
+  VkQueue graphics_queue = g_runtime.renderer().queue_;
+  copyImage2Buffer(vk_device, cmd_pool, graphics_queue, vk_image,
+                   ndarray_buffer, image_layout, width, height, channel,
+                   texture_to_ndarray /*image_to_buffer*/);
+}
 
 constexpr int win_width = 800;
 constexpr int win_height = 800;
@@ -34,7 +81,8 @@ struct BasicShapes : public App {
 
     GraphicsRuntime &runtime = F.runtime();
 
-    x_ = runtime.allocate_vertex_buffer(90000, 2);
+    x_ = runtime.allocate_vertex_buffer(
+        default_world_config.max_allowed_particle_num, 2);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -182,15 +230,17 @@ struct BasicShapes : public App {
     TiMemorySlice src;
     src.memory = particle_x.memory;
     src.offset = 0;
-    src.size = sizeof(float) * 2 * 90000;
+    src.size =
+        sizeof(float) * 2 * default_world_config.max_allowed_particle_num;
     TiMemorySlice dst;
     dst.memory = x_.memory();
     dst.offset = 0;
-    dst.size = sizeof(float) * 2 * 90000;
+    dst.size =
+        sizeof(float) * 2 * default_world_config.max_allowed_particle_num;
     ti_copy_memory_device_to_device(runtime, &dst, &src);
 
     // Since taichi and renderer use different command buffers, we must
-    // explictly use flushing (submitting taichi's command list) here, which
+    // explicitly use flushing (submitting taichi's command list) here, which
     // provides a semaphore between two command buffers.
     runtime.flush();
 

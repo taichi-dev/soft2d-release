@@ -49,16 +49,43 @@ std::unique_ptr<GraphicsTask> DrawTextureBuilder::build() {
     )";
     vert = ss.str();
   }
-  const char *frag = R"(
-    #version 460
-    layout(location=0) in vec2 v_uv;
-    layout(location=0) out vec4 color;
-
-    layout(binding=2) uniform sampler2D maintex;
-    void main() {
-      color = texture(maintex, v_uv);
+  std::string frag;
+  {
+    std::stringstream ss;
+    if (is_single_channel_) {
+      ss << R"(
+        #version 460
+        layout(location=0) in vec2 v_uv;
+        layout(location=0) out vec4 color;
+        layout(binding=2) uniform sampler2D maintex;
+        void main() {
+          vec4 sampled_value = texture(maintex, v_uv);
+          color.r = )"
+         << color_.r << R"(;)"
+         << R"(
+          color.g = )"
+         << color_.g << R"(;)"
+         << R"(
+          color.b = )"
+         << color_.b << R"(;)"
+         << R"( color.rgb *= sampled_value[0];
+        }
+      )";
+    } else {
+      ss << R"(
+        #version 460
+        layout(location=0) in vec2 v_uv;
+        layout(location=0) out vec4 color;
+        layout(binding=2) uniform sampler2D maintex;
+        void main() {
+          vec4 sampled_value = texture(maintex, v_uv);
+          color = sampled_value;
+        }
+      )";
     }
-  )";
+
+    frag = ss.str();
+  }
 
   GraphicsTaskConfig config{};
   config.vertex_shader_glsl = vert;

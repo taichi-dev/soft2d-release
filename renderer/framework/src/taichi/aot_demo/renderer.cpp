@@ -1323,7 +1323,8 @@ GraphicsTask::GraphicsTask(const std::shared_ptr<Renderer> &renderer,
   VkPipelineRasterizationStateCreateInfo prsci{};
   prsci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   prsci.lineWidth = 1.0f;
-  prsci.polygonMode = VK_POLYGON_MODE_LINE;
+  // prsci.polygonMode = VK_POLYGON_MODE_LINE;
+  prsci.polygonMode = VK_POLYGON_MODE_FILL;
   prsci.cullMode = VK_CULL_MODE_NONE;
   prsci.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
@@ -1335,7 +1336,7 @@ GraphicsTask::GraphicsTask(const std::shared_ptr<Renderer> &renderer,
   pdssci.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
   pdssci.depthTestEnable = VK_TRUE;
   pdssci.depthWriteEnable = VK_TRUE;
-  pdssci.depthCompareOp = VK_COMPARE_OP_LESS;
+  pdssci.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
   VkPipelineColorBlendAttachmentState pcbas{};
   pcbas.blendEnable = VK_TRUE;
