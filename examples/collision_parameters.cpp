@@ -15,10 +15,10 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct CollisionTypes : public App {
+struct CollisionParameters : public App {
 
   S2World world;
-  Emitter emitter[3];
+  std::vector<Emitter> emitters;
 
   std::unique_ptr<GraphicsTask> draw_points;
   std::unique_ptr<GraphicsTask> draw_collider_texture;
@@ -39,54 +39,71 @@ struct CollisionTypes : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
+    config.fine_grid_scale = 4;
     config.collision_penalty_force_scale_along_normal_dir = 0.0f;
     config.collision_penalty_force_scale_along_velocity_dir = 0.0f;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    // Create 3 scenes to test different collision types
-    float length = 0.5f;
+    // A matrix to show the different collision parameters.
+    // From left to right: restitution_coeff is 0, 0.05, 0.1, 0.15, 0.2
+    // From top to bottom: friction_coeff is 0, 0.25, 0.5, 0.75, 1.0
     float width = 1.0f / s2_get_world_config(world).grid_resolution * 2;
-    for (int i = 0; i < 3; ++i) {
-      float y_top = 1.0 - i * 1.0 / 3;
-      float y_bottom = 1.0 - (i + 1) * 1.0 / 3;
-      S2CollisionParameter cp{};
-      // 0: STICKY collision type
-      // 1: SLIP collision type
-      // 2: SEPARATE collision type
-      cp.collision_type = (S2CollisionType)i;
-      // top
-      create_collider(world,
-                      make_kinematics(vec2(0.5, y_top - width / 2 /*- 0.03*/),
-                                      0.0, vec2(0.0, 0.0), 0.0,
-                                      S2_MOBILITY_STATIC),
-                      make_box_shape(vec2(length, width)), cp);
-      // bottom
-      create_collider(world,
-                      make_kinematics(vec2(0.5, y_bottom + width / 2), 0.0,
-                                      vec2(0.0, 0.0), 0.0, S2_MOBILITY_STATIC),
-                      make_box_shape(vec2(length, width)), cp);
-      // left
-      create_collider(world,
-                      make_kinematics(vec2(0.0, 0.5 * (y_top + y_bottom)), 0.0,
-                                      vec2(0.0, 0.0), 0.0, S2_MOBILITY_STATIC),
-                      make_box_shape(vec2(width, length / 3)), cp);
-      // right
-      create_collider(world,
-                      make_kinematics(vec2(1.0, 0.5 * (y_top + y_bottom)), 0.0,
-                                      vec2(0.0, 0.0), 0.0, S2_MOBILITY_STATIC),
-                      make_box_shape(vec2(width, length / 3)), cp);
+    int n = 5;
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j) {
+        float y_top = 1.0 - i * 1.0 / n;
+        float y_bottom = 1.0 - (i + 1) * 1.0 / n;
+        float x_center = (j + 0.5) / n;
+        float x_left = (j + 0.0) / n;
+        float x_right = (j + 1.0) / n;
+        float length = 0.5 * 1.0f / n;
 
-      // Emitters
-      auto shape = make_box_shape(vec2(0.01, 0.01));
-      S2Material material =
-          make_material(S2_MATERIAL_TYPE_FLUID, 1000.0, 0.3, 0.2);
-      S2Kinematics kinematics =
-          make_kinematics(vec2(0.2, 0.5 * (y_top + y_bottom)), 0.7854,
-                          vec2(0.0, 3.0), 0.0, S2_MOBILITY_DYNAMIC);
-      emitter[i] = Emitter(world, material, kinematics, shape);
-      emitter[i].SetFrequency(10);
-      emitter[i].SetLifetime(10000);
-      emitter[i].SetEmittingEndFrame(200);
+        float friction_coeff = 1.0f / (n - 1) * i;
+        float restitution_coeff = 1.0f / (n - 1) * j * 0.2;
+        S2CollisionParameter cp{};
+        cp.collision_type = S2_COLLISION_TYPE_SEPARATE;
+        cp.friction_coeff = friction_coeff;
+        cp.restitution_coeff = restitution_coeff;
+
+        // top
+        create_collider(
+            world,
+            make_kinematics(vec2(x_center, y_top - width / 2 /*- 0.03*/), 0.0,
+                            vec2(0.0, 0.0), 0.0, S2_MOBILITY_STATIC),
+            make_box_shape(vec2(length, width)), cp);
+        // bottom
+        create_collider(world,
+                        make_kinematics(vec2(x_center, y_bottom + width / 2),
+                                        0.0, vec2(0.0, 0.0), 0.0,
+                                        S2_MOBILITY_STATIC),
+                        make_box_shape(vec2(length, width)), cp);
+        // left
+        create_collider(world,
+                        make_kinematics(vec2(x_left, 0.5 * (y_top + y_bottom)),
+                                        0.0, vec2(0.0, 0.0), 0.0,
+                                        S2_MOBILITY_STATIC),
+                        make_box_shape(vec2(width, length)), cp);
+        // right
+        create_collider(world,
+                        make_kinematics(vec2(x_right, 0.5 * (y_top + y_bottom)),
+                                        0.0, vec2(0.0, 0.0), 0.0,
+                                        S2_MOBILITY_STATIC),
+                        make_box_shape(vec2(width, length)), cp);
+
+        // Emitters
+        auto shape = make_box_shape(vec2(0.01, 0.01));
+        S2Material material =
+            make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 0.3, 0.2);
+        S2Kinematics kinematic =
+            make_kinematics(vec2(x_left + 0.2 * (x_right - x_left),
+                                 y_bottom + 0.3 * (y_top - y_bottom)),
+                            0.7854, vec2(1.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
+        auto emitter = Emitter(world, material, kinematic, shape);
+        emitter.SetFrequency(10);
+        emitter.SetLifetime(10000);
+        emitter.SetEmittingEndFrame(10);
+        emitters.push_back(emitter);
+      }
     }
     // Soft2D initialization ends
 
@@ -115,8 +132,8 @@ struct CollisionTypes : public App {
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
-    for (int i = 0; i < 3; ++i) {
-      emitter[i].Update(frame);
+    for (auto &emitter : emitters) {
+      emitter.Update(frame);
     }
 
     s2_step(world, 0.004);
@@ -149,5 +166,5 @@ struct CollisionTypes : public App {
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new CollisionTypes);
+  return std::unique_ptr<App>(new CollisionParameters);
 }
