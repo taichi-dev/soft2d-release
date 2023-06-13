@@ -4,8 +4,8 @@
 #include <soft2d/soft2d.h>
 #include "common.h"
 #include "globals.h"
-#include "taichi/aot_demo/framework.hpp"
 #include "emitter.h"
+#include "taichi/aot_demo/framework.hpp"
 // clang-format on
 
 using namespace ti::aot_demo;
@@ -15,7 +15,7 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct Emitters : public App {
+struct Sand : public App {
 
   S2World world;
   Emitter emitter;
@@ -35,12 +35,42 @@ struct Emitters : public App {
   }
 
   virtual void initialize() override final {
+    GraphicsRuntime &runtime = F.runtime();
 
-    // Renderer initialization
+    // Soft2D initialization begins
+    S2WorldConfig config = default_world_config;
+    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
+
+    emitter =
+        Emitter(world, make_material(S2_MATERIAL_TYPE_SAND, 1000.0f, 1.0f, 0.2),
+                make_kinematics({0.5f, 0.5f}, 0.0f, {0.0f, 0.0f}, 0.0f,
+                                S2_MOBILITY_DYNAMIC),
+                make_box_shape(vec2(0.05f, 0.05f)));
+    emitter.SetFrequency(50);
+    emitter.SetEmittingEndFrame(500);
+
+    // Add the boundary
+    // bottom
+    // Add a little bit of friction to the bottom collider
+    S2CollisionParameter cp{};
+    cp.collision_type = S2_COLLISION_TYPE_SLIP;
+    cp.friction_coeff = 0.5f;
+    create_collider(world, make_kinematics({0.5f, 0.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)), cp);
+    // top
+    create_collider(world, make_kinematics({0.5f, 1.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // left
+    create_collider(world, make_kinematics({0.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
+    // right
+    create_collider(world, make_kinematics({1.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
+    // Soft2D initialization ends
+
+    // Renderer initialization begins
     Renderer &renderer = F.renderer();
     renderer.set_framebuffer_size(win_width, win_height);
-
-    GraphicsRuntime &runtime = F.runtime();
 
     x_ = runtime.allocate_vertex_buffer(
         default_world_config.max_allowed_particle_num, 2);
@@ -60,48 +90,14 @@ struct Emitters : public App {
                                 .is_single_channel()
                                 .color(glm::vec3(0.2, 0.8, 0.0))
                                 .build();
-
-    // Soft2D initialization
-    // Create a world
-    S2WorldConfig config = default_world_config;
-    config.enable_debugging = true;
-    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
-
-    S2Shape shape = make_box_shape(vec2(0.03f, 0.02f));
-
-    S2Material material;
-    material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
-    material.density = 1000.0f;
-    material.youngs_modulus = 1.0f;
-    material.poissons_ratio = 0.2f;
-
-    S2Kinematics kinematics{};
-
-    kinematics.center = vec2(0.3f, 0.5f);
-    kinematics.linear_velocity = vec2(0.0f, 0.0f);
-    kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-
-    emitter = Emitter(world, material, kinematics, shape);
-
-    // Add the boundary
-    // bottom
-    create_collider(world, make_kinematics({0.5f, 0.0f}),
-                    make_box_shape(vec2(0.5f, 0.01f)));
-    // top
-    create_collider(world, make_kinematics({0.5f, 1.0f}),
-                    make_box_shape(vec2(0.5f, 0.01f)));
-    // left
-    create_collider(world, make_kinematics({0.0f, 0.5f}),
-                    make_box_shape(vec2(0.01f, 0.5f)));
-    // right
-    create_collider(world, make_kinematics({1.0f, 0.5f}),
-                    make_box_shape(vec2(0.01f, 0.5f)));
+    // Renderer initialization ends
   }
   int frame = 0;
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
     emitter.Update(frame);
+
     s2_step(world, 0.004);
 
     // Export particle position data to the external buffer
@@ -121,7 +117,7 @@ struct Emitters : public App {
     // provides a semaphore between two command buffers.
     runtime.flush();
 
-    frame += 1;
+    ++frame;
     return true;
   }
   virtual void render() override final {
@@ -131,4 +127,4 @@ struct Emitters : public App {
   }
 };
 
-std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new Emitters); }
+std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new Sand); }

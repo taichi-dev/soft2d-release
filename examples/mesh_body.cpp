@@ -6,49 +6,25 @@
 #include "globals.h"
 #include "emitter.h"
 #include "taichi/aot_demo/framework.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
 // clang-format on
 
 using namespace ti::aot_demo;
 using namespace std;
 
-std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
-  std::vector<S2Vec2> gear_points;
-  int n_tooth = n;
-  float r0 = r;
-  float l = len;
-  for (int i = 0; i < n_tooth; ++i) {
-    float theta = 2 * M_PI / n_tooth * i;
-    if (i & 1) {
-      float delta = 2 * M_PI / n_tooth * 0.5f * width;
-      auto dir = vec2(std::cos(theta), std::sin(theta));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0));
-    } else {
-    }
-  }
-  return gear_points;
-}
-
 constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct KinematicColliders : public App {
+struct MeshBody : public App {
 
   S2World world;
-  Emitter emitter;
-  S2Collider box_collider;
 
   std::unique_ptr<GraphicsTask> draw_points;
   std::unique_ptr<GraphicsTask> draw_collider_texture;
+  std::unique_ptr<GraphicsTask> draw_mesh;
+  ti::NdArray<uint32_t> element_indices_;
 
   ti::NdArray<float> x_;
   ti::Texture collider_texture_;
@@ -66,49 +42,42 @@ struct KinematicColliders : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
+    config.enable_debugging = true;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    emitter = Emitter(world,
-                      make_material(S2_MATERIAL_TYPE_FLUID, 1000.0f, 1.0f, 0.2),
-                      make_kinematics({0.2f, 0.9f}, 0.0f, {4.0f, 0.0f}, 0.0f,
-                                      S2_MOBILITY_DYNAMIC),
-                      make_box_shape(vec2(0.02f, 0.02f)));
-    emitter.SetFrequency(5);
+    auto vertices = std::vector<S2Vec2>{};
+    auto indices = std::vector<int>{};
+    int n = 50;
+    int m = 10;
+    vertices.resize(n * m);
+    indices.clear();
+    float dx = 1.0 / default_world_config.grid_resolution * 1.1;
 
-    box_collider =
-        create_collider(world,
-                        make_kinematics({0.5f, 0.6f}, 0.3, {2.0f, 0.0f}, -10.0f,
-                                        S2_MOBILITY_KINEMATIC),
-                        make_box_shape(vec2(0.05f, 0.05f)));
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < m; ++j) {
+        vertices[i * m + j] =
+            sub(vec2(dx * i, dx * j), vec2(dx * n / 2, dx * m / 2));
+        if (i < n - 1 && j < m - 1) {
+          indices.push_back(i * m + j);
+          indices.push_back((i + 1) * m + j + 1);
+          indices.push_back(i * m + j + 1);
+          indices.push_back(i * m + j);
+          indices.push_back((i + 1) * m + j);
+          indices.push_back((i + 1) * m + j + 1);
+        }
+      }
+    }
 
-    create_collider(world,
-                    make_kinematics({0.8f, 0.8f}, 0.7854, {0.0f, 0.0f}, 10.0f,
-                                    S2_MOBILITY_DYNAMIC),
-                    make_box_shape(vec2(0.1f, 0.01f)));
+    S2Material material =
+        make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 1.0, 0.2);
+    S2Kinematics kinematics = make_kinematics(
+        vec2(0.5, 0.8), 0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
 
-    auto polygon_vertices = make_gear(8, 0.015, 0.1, 1.0);
-    create_collider(
-        world,
-        make_kinematics({0.2f, 0.2f}, 1.4, {}, -30.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+    create_mesh_body_from_vector(world, material, kinematics, vertices,
+                                 indices);
 
-    polygon_vertices = make_gear(8, 0.02, 0.04);
-    create_collider(
-        world,
-        make_kinematics({0.9f, 0.4f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(10, 0.04, 0.02);
-    create_collider(
-        world,
-        make_kinematics({0.75f, 0.3f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(16, 0.05, 0.01);
-    create_collider(
-        world,
-        make_kinematics({0.55f, 0.2f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+    create_collider(world, make_kinematics({0.5f, 0.5f}),
+                    make_circle_shape(0.02f));
 
     // Add the boundary
     // bottom
@@ -123,7 +92,6 @@ struct KinematicColliders : public App {
     // right
     create_collider(world, make_kinematics({1.0f, 0.5f}),
                     make_box_shape(vec2(0.01f, 0.5f)));
-
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -132,13 +100,14 @@ struct KinematicColliders : public App {
 
     x_ = runtime.allocate_vertex_buffer(
         default_world_config.max_allowed_particle_num, 2);
-
     collider_texture_ =
         runtime.allocate_texture2d(default_world_config.grid_resolution *
                                        default_world_config.fine_grid_scale,
                                    default_world_config.grid_resolution *
                                        default_world_config.fine_grid_scale,
                                    TI_FORMAT_R32F, TI_NULL_HANDLE);
+    element_indices_ = runtime.allocate_index_buffer(
+        default_world_config.max_allowed_element_num * 3, 1);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -148,23 +117,31 @@ struct KinematicColliders : public App {
                                 .is_single_channel()
                                 .color(glm::vec3(0.2, 0.8, 0.0))
                                 .build();
+
+    // Set up orthogonal view
+    glm::mat4 model2world = glm::mat4(1.0f);
+    glm::mat4 camera2view =
+        glm::ortho(1.0, -1.0, 1.0 * win_fov, -1.0 * win_fov, -1000.0, 1000.0);
+    glm::mat4 world2camera = glm::lookAt(
+        glm::vec3(0.0, 0.0, 10), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0, -1, 0));
+    glm::mat4 world2view = camera2view * world2camera;
+
+    auto offset = s2_get_world_config(world).offset;
+    auto extent = s2_get_world_config(world).extent;
+    draw_mesh =
+        runtime
+            .draw_mesh(x_, element_indices_, glm::vec2(offset.x, offset.y),
+                       glm::vec2(extent.x, extent.y))
+            .model2world(model2world)
+            .world2view(world2view)
+            .color(glm::vec3(1.0, 0.5, 0.0))
+            .polygon_mode(VK_POLYGON_MODE_LINE)
+            .build();
     // Renderer initialization ends
   }
   int frame = 0;
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
-
-    auto v = vec2(2.0f, 0.0f);
-    if (s2_get_collider_position(box_collider).x < 0.0f) {
-      v.x = 2.0f;
-      s2_set_collider_linear_velocity(box_collider, &v);
-    }
-    if (s2_get_collider_position(box_collider).x > 1.0f) {
-      v.x = -2.0f;
-      s2_set_collider_linear_velocity(box_collider, &v);
-    }
-
-    emitter.Update(frame);
 
     s2_step(world, 0.004);
 
@@ -180,6 +157,13 @@ struct KinematicColliders : public App {
     s2_export_buffer_to_texture(world, S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM,
                                 true, 0.8f, &texture);
 
+    // Export element indices to the external buffer
+    TiNdArray element_indices_tmp;
+    s2_get_buffer(world, S2_BUFFER_NAME_ELEMENT_INDICES, &element_indices_tmp);
+    ndarray_data_copy(
+        runtime.runtime(), element_indices_.ndarray(), element_indices_tmp,
+        sizeof(int) * 3 * default_world_config.max_allowed_element_num);
+
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which
     // provides a semaphore between two command buffers.
@@ -190,11 +174,10 @@ struct KinematicColliders : public App {
   }
   virtual void render() override final {
     Renderer &renderer = F.renderer();
+    renderer.enqueue_graphics_task(*draw_mesh);
     renderer.enqueue_graphics_task(*draw_points);
     renderer.enqueue_graphics_task(*draw_collider_texture);
   }
 };
 
-std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new KinematicColliders);
-}
+std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new MeshBody); }

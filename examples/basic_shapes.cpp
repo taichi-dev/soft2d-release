@@ -31,27 +31,14 @@ struct BasicShapes : public App {
   }
 
   virtual void initialize() override final {
-
-    // Renderer initialization
-    Renderer &renderer = F.renderer();
-    renderer.set_framebuffer_size(win_width, win_height);
-
     GraphicsRuntime &runtime = F.runtime();
 
-    x_ = runtime.allocate_vertex_buffer(
-        default_world_config.max_allowed_particle_num, 2);
-
-    draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
-                      .color(glm::vec3(1, 0.5, 0))
-                      .build();
-
-    // Soft2D initialization
-    // Create a world
+    // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
 
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
+    // Create a box body
     S2Shape shape = make_box_shape(vec2(0.03f, 0.02f));
 
     S2Material material;
@@ -65,7 +52,7 @@ struct BasicShapes : public App {
     kinematics.center = vec2(0.3f, 0.5f);
     kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
 
-    make_body(world, material, kinematics, shape);
+    create_body(world, material, kinematics, shape);
 
     // Circle body
     S2Shape circle_shape = make_circle_shape(0.03f);
@@ -79,7 +66,7 @@ struct BasicShapes : public App {
     S2Kinematics circle_kinematics{};
     circle_kinematics.center = vec2(0.4f, 0.5f);
     circle_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, circle_material, circle_kinematics, circle_shape);
+    create_body(world, circle_material, circle_kinematics, circle_shape);
 
     // Ellipse body
     S2Shape ellipse_shape = make_ellipse_shape(0.03f, 0.02f);
@@ -93,7 +80,7 @@ struct BasicShapes : public App {
     S2Kinematics ellipse_kinematics{};
     ellipse_kinematics.center = vec2(0.5f, 0.5f);
     ellipse_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, ellipse_material, ellipse_kinematics, ellipse_shape);
+    create_body(world, ellipse_material, ellipse_kinematics, ellipse_shape);
 
     // Capsule body
     S2Shape capsule_shape = make_capsule_shape(0.03f, 0.02f);
@@ -107,9 +94,9 @@ struct BasicShapes : public App {
     S2Kinematics capsule_kinematics{};
     capsule_kinematics.center = vec2(0.6f, 0.5f);
     capsule_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, capsule_material, capsule_kinematics, capsule_shape);
+    create_body(world, capsule_material, capsule_kinematics, capsule_shape);
 
-    // polygon body
+    // Polygon body
     auto polygon_vertices = std::vector<S2Vec2>{
         {-0.05, -0.05},   {-0.015, -0.025}, {0.0, -0.05},   {0.0125, 0.0125},
         {0.0125, 0.0375}, {-0.0375, 0.025}, {-0.05625, 0.0}};
@@ -125,34 +112,37 @@ struct BasicShapes : public App {
     S2Kinematics polygon_kinematics{};
     polygon_kinematics.center = vec2(0.75f, 0.5f);
     polygon_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-    make_body(world, polygon_material, polygon_kinematics, polygon_shape);
+    create_body(world, polygon_material, polygon_kinematics, polygon_shape);
 
-    // Add a ground
-    make_collider(world, make_kinematics({0.5f, 0.0f}),
-                  make_box_shape(vec2(0.5f, 0.01f)));
+    // Add the ground
+    create_collider(world, make_kinematics({0.5f, 0.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // Soft2D initialization ends
+
+    // Renderer initialization begins
+    Renderer &renderer = F.renderer();
+    renderer.set_framebuffer_size(win_width, win_height);
+
+    x_ = runtime.allocate_vertex_buffer(
+        default_world_config.max_allowed_particle_num, 2);
+
+    draw_points = runtime.draw_points(x_)
+                      .point_size(3.0f)
+                      .color(glm::vec3(1, 0.5, 0))
+                      .build();
+    // Renderer initialization ends
   }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
-    // Step forward
     s2_step(world, 0.004);
 
-    // Get particle position gpu buffer
+    // Export particle position data to the external buffer
     TiNdArray particle_x;
     s2_get_buffer(world, S2_BUFFER_NAME_PARTICLE_POSITION, &particle_x);
-
-    // Export particle position data to the external buffer
-    TiMemorySlice src;
-    src.memory = particle_x.memory;
-    src.offset = 0;
-    src.size =
-        sizeof(float) * 2 * default_world_config.max_allowed_particle_num;
-    TiMemorySlice dst;
-    dst.memory = x_.memory();
-    dst.offset = 0;
-    dst.size =
-        sizeof(float) * 2 * default_world_config.max_allowed_particle_num;
-    ti_copy_memory_device_to_device(runtime, &dst, &src);
+    ndarray_data_copy(runtime.runtime(), x_.ndarray(), particle_x,
+                      sizeof(float) * 2 *
+                          default_world_config.max_allowed_particle_num);
 
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which

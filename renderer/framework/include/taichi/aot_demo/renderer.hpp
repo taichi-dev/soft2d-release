@@ -147,6 +147,7 @@ struct GraphicsTaskConfig {
   uint32_t index_count;
   uint32_t instance_count;
   PrimitiveTopology primitive_topology;
+  VkPolygonMode polygon_mode_{VK_POLYGON_MODE_FILL};
 };
 
 class GraphicsTask {

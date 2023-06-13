@@ -27,6 +27,9 @@ class DrawMeshBuilder {
 
   PrimitiveTopology topo_{L_PRIMITIVE_TOPOLOGY_TRIANGLE};
 
+  VkPolygonMode polygon_mode_{VK_POLYGON_MODE_FILL};
+
+
 public:
   DrawMeshBuilder(const std::shared_ptr<Renderer> &renderer,
                   const ti::NdArray<float> &positions,
@@ -85,6 +88,11 @@ public:
 
   Self &topo(PrimitiveTopology topo) {
     topo_ = topo;
+    return *this;
+  }
+
+  Self &polygon_mode(VkPolygonMode mode) {
+    polygon_mode_ = mode;
     return *this;
   }
 

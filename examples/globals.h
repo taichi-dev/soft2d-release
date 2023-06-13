@@ -14,7 +14,7 @@ S2WorldConfig default_world_config{
         S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING,
     .enable_debugging = true,
     .enable_world_query = false,
-    .mesh_body_force_scale = 1e6f,
+    .mesh_body_force_scale = 1e-6f,
     .collision_penalty_force_scale_along_normal_dir = 0.1f,
     .collision_penalty_force_scale_along_velocity_dir = 0.1f,
     .fine_grid_scale = 4,

@@ -1,5 +1,6 @@
 #include <soft2d/soft2d.h>
 #include <taichi/taichi.h>
+#include <vector>
 
 inline S2Vec2 vec2(float x, float y) {
   S2Vec2 out{};
@@ -36,7 +37,7 @@ inline S2Vec2 mul(S2Vec2 a, float b) {
   return out;
 }
 
-inline S2Vec2 mul(int a, S2Vec2 b) {
+inline S2Vec2 mul(float a, S2Vec2 b) {
   S2Vec2 out{};
   out.x = a * b.x;
   out.y = a * b.y;
@@ -122,47 +123,59 @@ inline S2Material make_material(S2MaterialType type, float density,
   return out;
 }
 
-inline S2Body make_body(S2World world, S2Material material,
-                        S2Kinematics kinematics, S2Shape shape,
-                        uint32_t tag = 0) {
+inline S2Body create_body(S2World world, S2Material material,
+                          S2Kinematics kinematics, S2Shape shape,
+                          uint32_t tag = 0) {
   S2Body out{};
   out = s2_create_body(world, &material, &kinematics, &shape, tag);
   return out;
 }
 
-inline S2Body make_custom_body(S2World world, S2Material material,
-                               S2Kinematics kinematics, uint32_t particle_num,
-                               void *particles_in_local_space,
-                               uint32_t tag = 0) {
+inline S2Body create_custom_body(S2World world, S2Material material,
+                                 S2Kinematics kinematics, uint32_t particle_num,
+                                 void *particles_in_local_space,
+                                 uint32_t tag = 0) {
   S2Body out{};
   out = s2_create_custom_body(world, &material, &kinematics, particle_num,
                               particles_in_local_space, tag);
   return out;
 }
 
-inline S2Body make_mesh_body(S2World world, S2Material material,
-                             S2Kinematics kinematics, uint32_t vertex_num,
-                             void *vertices_in_local_space,
-                             uint32_t triangle_num,
-                             void *triangles_in_local_space, uint32_t tag = 0) {
+inline S2Body create_mesh_body(S2World world, S2Material material,
+                               S2Kinematics kinematics, uint32_t vertex_num,
+                               void *vertices_in_local_space,
+                               uint32_t triangle_num, void *triangle_indices,
+                               uint32_t tag = 0) {
   S2Body out{};
   out = s2_create_mesh_body(world, &material, &kinematics, vertex_num,
                             vertices_in_local_space, triangle_num,
-                            triangles_in_local_space, tag);
+                            triangle_indices, tag);
+  return out;
+}
+
+inline S2Body create_mesh_body_from_vector(
+    S2World world, S2Material material, S2Kinematics kinematics,
+    std::vector<S2Vec2> vertices_in_local_space,
+    std::vector<int> triangle_indices, uint32_t tag = 0) {
+  S2Body out{};
+  out = create_mesh_body(world, material, kinematics,
+                         vertices_in_local_space.size(),
+                         vertices_in_local_space.data(),
+                         triangle_indices.size(), triangle_indices.data(), tag);
   return out;
 }
 
 inline S2Collider
-make_collider(S2World world, S2Kinematics kinematics, S2Shape shape,
-              S2CollisionParameter cp = {
-                  S2CollisionType::S2_COLLISION_TYPE_SEPARATE, 0.0f, 0.0f}) {
+create_collider(S2World world, S2Kinematics kinematics, S2Shape shape,
+                S2CollisionParameter cp = {
+                    S2CollisionType::S2_COLLISION_TYPE_SEPARATE, 0.0f, 0.0f}) {
   S2Collider out{};
   out = s2_create_collider(world, &kinematics, &shape, &cp);
   return out;
 }
 
-inline S2Trigger make_trigger(S2World world, S2Kinematics kinematics,
-                              S2Shape shape) {
+inline S2Trigger create_trigger(S2World world, S2Kinematics kinematics,
+                                S2Shape shape) {
   S2Trigger out{};
   out = s2_create_trigger(world, &kinematics, &shape);
   return out;

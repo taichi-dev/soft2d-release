@@ -120,6 +120,7 @@ std::unique_ptr<GraphicsTask> DrawMeshBuilder::build() {
   config.index_count = indices_.shape.dims[0] * indices_.elem_shape.dims[0];
   config.instance_count = 1;
   config.primitive_topology = topo_;
+  config.polygon_mode_ = polygon_mode_;
 
   return std::make_unique<GraphicsTask>(renderer_, config);
 }

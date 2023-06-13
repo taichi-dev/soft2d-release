@@ -4,54 +4,39 @@
 #include <soft2d/soft2d.h>
 #include "common.h"
 #include "globals.h"
-#include "emitter.h"
 #include "taichi/aot_demo/framework.hpp"
+#include "emitter.h"
 // clang-format on
 
 using namespace ti::aot_demo;
 using namespace std;
 
-std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
-  std::vector<S2Vec2> gear_points;
-  int n_tooth = n;
-  float r0 = r;
-  float l = len;
-  for (int i = 0; i < n_tooth; ++i) {
-    float theta = 2 * M_PI / n_tooth * i;
-    if (i & 1) {
-      float delta = 2 * M_PI / n_tooth * 0.5f * width;
-      auto dir = vec2(std::cos(theta), std::sin(theta));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0));
-    } else {
-    }
-  }
-  return gear_points;
-}
-
 constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct KinematicColliders : public App {
+// A user-defined callback function to remove all particles in a trigger
+void remove_particles_callback(S2Particle *particles, uint32_t size) {
+  for (size_t i = 0; i < size; i++) {
+    auto &p = particles[i];
+    // Mark the particle as removed
+    p.is_removed = true;
+  }
+}
+
+struct TriggerCallBack : public App {
 
   S2World world;
+  S2Trigger trigger;
   Emitter emitter;
-  S2Collider box_collider;
 
   std::unique_ptr<GraphicsTask> draw_points;
   std::unique_ptr<GraphicsTask> draw_collider_texture;
+  std::unique_ptr<GraphicsTask> draw_trigger_texture;
 
   ti::NdArray<float> x_;
   ti::Texture collider_texture_;
+  ti::Texture trigger_texture_;
 
   virtual AppConfig cfg() const override final {
     AppConfig out{};
@@ -66,49 +51,26 @@ struct KinematicColliders : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
+    config.enable_world_query = true;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    emitter = Emitter(world,
-                      make_material(S2_MATERIAL_TYPE_FLUID, 1000.0f, 1.0f, 0.2),
-                      make_kinematics({0.2f, 0.9f}, 0.0f, {4.0f, 0.0f}, 0.0f,
-                                      S2_MOBILITY_DYNAMIC),
-                      make_box_shape(vec2(0.02f, 0.02f)));
-    emitter.SetFrequency(5);
+    S2Shape shape = make_circle_shape(0.015f);
 
-    box_collider =
-        create_collider(world,
-                        make_kinematics({0.5f, 0.6f}, 0.3, {2.0f, 0.0f}, -10.0f,
-                                        S2_MOBILITY_KINEMATIC),
-                        make_box_shape(vec2(0.05f, 0.05f)));
+    S2Material material;
+    material.type = S2MaterialType::S2_MATERIAL_TYPE_ELASTIC;
+    material.density = 1000.0f;
+    material.youngs_modulus = 1.0f;
+    material.poissons_ratio = 0.2f;
 
-    create_collider(world,
-                    make_kinematics({0.8f, 0.8f}, 0.7854, {0.0f, 0.0f}, 10.0f,
-                                    S2_MOBILITY_DYNAMIC),
-                    make_box_shape(vec2(0.1f, 0.01f)));
+    S2Kinematics kinematics{};
 
-    auto polygon_vertices = make_gear(8, 0.015, 0.1, 1.0);
-    create_collider(
-        world,
-        make_kinematics({0.2f, 0.2f}, 1.4, {}, -30.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+    kinematics.center = vec2(0.5f, 0.8f);
+    kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
 
-    polygon_vertices = make_gear(8, 0.02, 0.04);
-    create_collider(
-        world,
-        make_kinematics({0.9f, 0.4f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+    emitter = Emitter(world, material, kinematics, shape);
 
-    polygon_vertices = make_gear(10, 0.04, 0.02);
-    create_collider(
-        world,
-        make_kinematics({0.75f, 0.3f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(16, 0.05, 0.01);
-    create_collider(
-        world,
-        make_kinematics({0.55f, 0.2f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+    trigger = create_trigger(world, make_kinematics({0.5f, 0.1f}),
+                             make_box_shape(vec2(0.07f, 0.07f)));
 
     // Add the boundary
     // bottom
@@ -139,6 +101,12 @@ struct KinematicColliders : public App {
                                    default_world_config.grid_resolution *
                                        default_world_config.fine_grid_scale,
                                    TI_FORMAT_R32F, TI_NULL_HANDLE);
+    trigger_texture_ =
+        runtime.allocate_texture2d(default_world_config.grid_resolution *
+                                       default_world_config.fine_grid_scale,
+                                   default_world_config.grid_resolution *
+                                       default_world_config.fine_grid_scale,
+                                   TI_FORMAT_R32F, TI_NULL_HANDLE);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -148,25 +116,21 @@ struct KinematicColliders : public App {
                                 .is_single_channel()
                                 .color(glm::vec3(0.2, 0.8, 0.0))
                                 .build();
+    draw_trigger_texture = runtime.draw_texture(trigger_texture_)
+                               .is_single_channel()
+                               .color(glm::vec3(0.85, 0.1, 0.0))
+                               .build();
     // Renderer initialization ends
   }
   int frame = 0;
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
-    auto v = vec2(2.0f, 0.0f);
-    if (s2_get_collider_position(box_collider).x < 0.0f) {
-      v.x = 2.0f;
-      s2_set_collider_linear_velocity(box_collider, &v);
-    }
-    if (s2_get_collider_position(box_collider).x > 1.0f) {
-      v.x = -2.0f;
-      s2_set_collider_linear_velocity(box_collider, &v);
-    }
-
     emitter.Update(frame);
 
     s2_step(world, 0.004);
+
+    s2_manipulate_particles_in_trigger(trigger, remove_particles_callback);
 
     // Export particle position data to the external buffer
     TiNdArray particle_x;
@@ -175,26 +139,30 @@ struct KinematicColliders : public App {
                       sizeof(float) * 2 *
                           default_world_config.max_allowed_particle_num);
 
-    // Export collider buffer to texture
-    auto texture = collider_texture_.texture();
+    // Export collider and trigger buffers to texture
+    auto collider_tex = collider_texture_.texture();
+    auto trigger_tex = trigger_texture_.texture();
     s2_export_buffer_to_texture(world, S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM,
-                                true, 0.8f, &texture);
+                                true, 0.8f, &collider_tex);
+    s2_export_buffer_to_texture(world, S2_BUFFER_NAME_FINE_GRID_TRIGGER_ID,
+                                true, 0.8f, &trigger_tex);
 
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which
     // provides a semaphore between two command buffers.
     runtime.flush();
 
-    ++frame;
+    frame += 1;
     return true;
   }
   virtual void render() override final {
     Renderer &renderer = F.renderer();
     renderer.enqueue_graphics_task(*draw_points);
     renderer.enqueue_graphics_task(*draw_collider_texture);
+    renderer.enqueue_graphics_task(*draw_trigger_texture);
   }
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new KinematicColliders);
+  return std::unique_ptr<App>(new TriggerCallBack);
 }

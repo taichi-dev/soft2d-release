@@ -9,6 +9,10 @@ struct Emitter {
   S2Shape shape;
   uint32_t tag;
 
+  // For mesh body
+  std::vector<S2Vec2> particles_in_local_space{};
+  std::vector<int> triangle_indices{};
+
   // -1 means infinite lifetime
   int lifetime{-1};
   int frame_begin_emit{0};
@@ -20,9 +24,22 @@ struct Emitter {
           S2Shape shape, uint32_t tag = 0)
       : world(world), material(material), kinematics(kinematics), shape(shape),
         tag(tag) {}
+  Emitter(S2World world, S2Material material, S2Kinematics kinematics,
+          std::vector<S2Vec2> particles_in_local_space,
+          std::vector<int> triangle_indices, uint32_t tag = 0)
+      : world(world), material(material), kinematics(kinematics),
+        particles_in_local_space(particles_in_local_space),
+        triangle_indices(triangle_indices), tag(tag) {}
 
   void Emit() {
-    S2Body body = make_body(world, material, kinematics, shape, tag);
+    S2Body body;
+    if (triangle_indices.size() == 0) {
+      body = create_body(world, material, kinematics, shape, tag);
+    } else {
+      body = create_mesh_body_from_vector(world, material, kinematics,
+                                          particles_in_local_space,
+                                          triangle_indices, tag);
+    }
     lifetimes_[body] = lifetime;
   }
 

@@ -1323,8 +1323,7 @@ GraphicsTask::GraphicsTask(const std::shared_ptr<Renderer> &renderer,
   VkPipelineRasterizationStateCreateInfo prsci{};
   prsci.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   prsci.lineWidth = 1.0f;
-  // prsci.polygonMode = VK_POLYGON_MODE_LINE;
-  prsci.polygonMode = VK_POLYGON_MODE_FILL;
+  prsci.polygonMode = config_.polygon_mode_;
   prsci.cullMode = VK_CULL_MODE_NONE;
   prsci.frontFace = VK_FRONT_FACE_CLOCKWISE;
 

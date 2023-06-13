@@ -21,7 +21,7 @@ struct Colliders : public App {
   Emitter emitter;
 
   std::unique_ptr<GraphicsTask> draw_points;
-  std::unique_ptr<GraphicsTask> draw_texture;
+  std::unique_ptr<GraphicsTask> draw_collider_texture;
 
   ti::NdArray<float> x_;
   ti::Texture collider_texture_;
@@ -35,12 +35,59 @@ struct Colliders : public App {
   }
 
   virtual void initialize() override final {
+    GraphicsRuntime &runtime = F.runtime();
 
-    // Renderer initialization
+    // Soft2D initialization begins
+    S2WorldConfig config = default_world_config;
+    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
+
+    emitter = Emitter(world,
+                      make_material(S2_MATERIAL_TYPE_FLUID, 1000.0f, 1.0f, 0.2),
+                      make_kinematics({0.2f, 0.9f}, 0.0f, {4.0f, 0.0f}, 0.0f,
+                                      S2_MOBILITY_DYNAMIC),
+                      make_box_shape(vec2(0.02f, 0.02f)));
+    emitter.SetFrequency(5);
+
+    create_collider(world, make_kinematics({0.5f, 0.5f}, 0.3),
+                    make_box_shape(vec2(0.05f, 0.05f)));
+
+    create_collider(world, make_kinematics({0.8f, 0.8f}, 0.7854),
+                    make_box_shape(vec2(0.1f, 0.01f)));
+
+    create_collider(world, make_kinematics({0.8f, 0.2f}),
+                    make_circle_shape(0.04));
+
+    create_collider(world, make_kinematics({0.6f, 0.2f}),
+                    make_ellipse_shape(0.04, 0.02));
+
+    create_collider(world, make_kinematics({0.4f, 0.2f}),
+                    make_capsule_shape(0.04, 0.02));
+
+    auto polygon_vertices = std::vector<S2Vec2>{
+        {-0.05, -0.05},   {-0.015, -0.025}, {0.0, -0.05},   {0.0125, 0.0125},
+        {0.0125, 0.0375}, {-0.0375, 0.025}, {-0.05625, 0.0}};
+    create_collider(
+        world, make_kinematics({0.2f, 0.2f}, 1.4),
+        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+
+    // Add the boundary
+    // bottom
+    create_collider(world, make_kinematics({0.5f, 0.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // top
+    create_collider(world, make_kinematics({0.5f, 1.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // left
+    create_collider(world, make_kinematics({0.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
+    // right
+    create_collider(world, make_kinematics({1.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
+    // Soft2D initialization ends
+
+    // Renderer initialization begins
     Renderer &renderer = F.renderer();
     renderer.set_framebuffer_size(win_width, win_height);
-
-    GraphicsRuntime &runtime = F.runtime();
 
     x_ = runtime.allocate_vertex_buffer(
         default_world_config.max_allowed_particle_num, 2);
@@ -56,68 +103,11 @@ struct Colliders : public App {
                       .point_size(3.0f)
                       .color(glm::vec3(1, 0.5, 0))
                       .build();
-    draw_texture = runtime.draw_texture(collider_texture_)
-                       .is_single_channel()
-                       .color(glm::vec3(0.2, 0.8, 0.0))
-                       .build();
-
-    // Soft2D initialization
-    // Create a world
-    S2WorldConfig config = default_world_config;
-    world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
-
-    S2Shape shape = make_box_shape(vec2(0.02f, 0.02));
-
-    S2Material material;
-    material.type = S2MaterialType::S2_MATERIAL_TYPE_FLUID;
-    material.density = 1000.0f;
-    material.youngs_modulus = 1.0f;
-    material.poissons_ratio = 0.2f;
-
-    S2Kinematics kinematics{};
-
-    kinematics.center = vec2(0.2f, 0.9f);
-    kinematics.linear_velocity = vec2(4.0f, 0.0f);
-    kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
-
-    emitter = Emitter(world, material, kinematics, shape);
-    emitter.SetFrequency(5);
-
-    make_collider(world, make_kinematics({0.5f, 0.5f}, 0.3),
-                  make_box_shape(vec2(0.05f, 0.05f)));
-
-    make_collider(world, make_kinematics({0.8f, 0.8f}, 0.7854),
-                  make_box_shape(vec2(0.1f, 0.01f)));
-
-    make_collider(world, make_kinematics({0.8f, 0.2f}),
-                  make_circle_shape(0.04));
-
-    make_collider(world, make_kinematics({0.6f, 0.2f}),
-                  make_ellipse_shape(0.04, 0.02));
-
-    make_collider(world, make_kinematics({0.4f, 0.2f}),
-                  make_capsule_shape(0.04, 0.02));
-
-    auto polygon_vertices = std::vector<S2Vec2>{
-        {-0.05, -0.05},   {-0.015, -0.025}, {0.0, -0.05},   {0.0125, 0.0125},
-        {0.0125, 0.0375}, {-0.0375, 0.025}, {-0.05625, 0.0}};
-    S2Shape polygon_shape =
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size());
-    make_collider(world, make_kinematics({0.2f, 0.2f}, 1.4), polygon_shape);
-
-    // Add the boundary
-    // bottom
-    make_collider(world, make_kinematics({0.5f, 0.0f}),
-                  make_box_shape(vec2(0.5f, 0.01f)));
-    // top
-    make_collider(world, make_kinematics({0.5f, 1.0f}),
-                  make_box_shape(vec2(0.5f, 0.01f)));
-    // left
-    make_collider(world, make_kinematics({0.0f, 0.5f}),
-                  make_box_shape(vec2(0.01f, 0.5f)));
-    // right
-    make_collider(world, make_kinematics({1.0f, 0.5f}),
-                  make_box_shape(vec2(0.01f, 0.5f)));
+    draw_collider_texture = runtime.draw_texture(collider_texture_)
+                                .is_single_channel()
+                                .color(glm::vec3(0.2, 0.8, 0.0))
+                                .build();
+    // Renderer initialization ends
   }
   int frame = 0;
   virtual bool update() override final {
@@ -150,7 +140,7 @@ struct Colliders : public App {
   virtual void render() override final {
     Renderer &renderer = F.renderer();
     renderer.enqueue_graphics_task(*draw_points);
-    renderer.enqueue_graphics_task(*draw_texture);
+    renderer.enqueue_graphics_task(*draw_collider_texture);
   }
 };
 

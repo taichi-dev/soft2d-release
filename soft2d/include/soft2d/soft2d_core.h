@@ -454,6 +454,7 @@ typedef enum S2BufferName {
   /// ID of the most recently added trigger is stored.  This buffer can be
   /// exported only if `S2WorldConfig.enable_debugging` is true.
   S2_BUFFER_NAME_FINE_GRID_TRIGGER_ID = 6,
+  S2_BUFFER_NAME_ELEMENT_INDICES = 7,
   S2_BUFFER_NAME_MAX_ENUM = 0xffffffff,
 } S2BufferName;
 
