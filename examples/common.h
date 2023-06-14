@@ -89,7 +89,7 @@ inline S2Shape make_capsule_shape(float rect_half_length, float cap_radius) {
   return out;
 }
 
-inline S2Shape make_polygon_shape(S2Vec2 *vertices, int vertex_num) {
+inline S2Shape make_polygon_shape(void *vertices, int vertex_num) {
   S2Shape out{};
   S2PolygonShape polygon{};
   polygon.vertices = vertices;

@@ -89,25 +89,25 @@ struct KinematicColliders : public App {
     auto polygon_vertices = make_gear(8, 0.015, 0.1, 1.0);
     create_collider(
         world,
-        make_kinematics({0.2f, 0.2f}, 1.4, {}, -30.0f, S2_MOBILITY_KINEMATIC),
+        make_kinematics({0.2f, 0.2f}, 0.0, {}, -30.0f, S2_MOBILITY_KINEMATIC),
         make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
 
     polygon_vertices = make_gear(8, 0.02, 0.04);
     create_collider(
         world,
-        make_kinematics({0.9f, 0.4f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
+        make_kinematics({0.9f, 0.4f}, 0.0, {}, 50.0f, S2_MOBILITY_KINEMATIC),
         make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
 
     polygon_vertices = make_gear(10, 0.04, 0.02);
     create_collider(
         world,
-        make_kinematics({0.75f, 0.3f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
+        make_kinematics({0.75f, 0.3f}, 0.0, {}, 50.0f, S2_MOBILITY_KINEMATIC),
         make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
 
     polygon_vertices = make_gear(16, 0.05, 0.01);
     create_collider(
         world,
-        make_kinematics({0.55f, 0.2f}, 1.4, {}, 50.0f, S2_MOBILITY_KINEMATIC),
+        make_kinematics({0.55f, 0.2f}, 0.0, {}, 50.0f, S2_MOBILITY_KINEMATIC),
         make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
 
     // Add the boundary
