@@ -39,7 +39,6 @@ struct CollisionParameters : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
-    config.fine_grid_scale = 4;
     config.collision_penalty_force_scale_along_normal_dir = 0.0f;
     config.collision_penalty_force_scale_along_velocity_dir = 0.0f;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);

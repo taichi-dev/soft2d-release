@@ -13,40 +13,14 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
-  std::vector<S2Vec2> gear_points;
-  int n_tooth = n;
-  float r0 = r;
-  float l = len;
-  for (int i = 0; i < n_tooth; ++i) {
-    float theta = 2 * M_PI / n_tooth * i;
-    if (i & 1) {
-      float delta = 2 * M_PI / n_tooth * 0.5f * width;
-      auto dir = vec2(std::cos(theta), std::sin(theta));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0));
-    } else {
-    }
-  }
-  return gear_points;
-}
-
 constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct WorldOffset : public App {
+struct WorldExtent : public App {
 
   S2World world;
-  S2Trigger trigger;
+  // S2Trigger trigger;
 
   std::unique_ptr<GraphicsTask> draw_points;
   std::unique_ptr<GraphicsTask> draw_collider_texture;
@@ -71,97 +45,54 @@ struct WorldOffset : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
+    // Enlarge the size of world to 50(m) x 50(m).
+    config.extent = {50.0f, 50.0f};
     config.enable_debugging = true;
     config.enable_world_query = true;
     config.out_world_boundary_policy =
         S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_DEACTIVATION;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    auto vertices = std::vector<S2Vec2>{};
-    auto indices = std::vector<int>{};
-    int n = 5;
-    int m = 20;
-    vertices.resize(n * m);
-    indices.clear();
-    float dx = 1.0 / config.grid_resolution * 1.1;
+    // A body with a size of 0.1x0.1. This body contains only a single particle
+    // because the particle-sampling accuracy is not enough in such a large
+    // world size.
+    create_body(
+        world, make_material(S2_MATERIAL_TYPE_SNOW, 1000.0f, 1.0f, 0.2),
+        make_kinematics({0.1f * config.extent.x, 0.5f * config.extent.x}, 0.0f,
+                        {0.0f, 0.0f}, 0.0f, S2_MOBILITY_DYNAMIC),
+        make_box_shape(vec2(0.1f, 0.1f)));
 
-    float r1 = 0.02f;
-    float r2 = 0.05f;
+    // A body with a size of 1x1.
+    create_body(
+        world, make_material(S2_MATERIAL_TYPE_SNOW, 1000.0f, 1.0f, 0.2),
+        make_kinematics({0.3f * config.extent.x, 0.5f * config.extent.x}, 0.0f,
+                        {0.0f, 0.0f}, 0.0f, S2_MOBILITY_DYNAMIC),
+        make_box_shape(vec2(1.0f, 1.0f)));
 
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < m; ++j) {
-        float r = r1 + (r2 - r1) * i / n;
-        vertices[i * m + j] =
-            mul(r, vec2(cos(j * M_PI * 2 / m), sin(j * M_PI * 2 / m)));
-        if (i < n - 1) {
-          indices.push_back(i * m + j);
-          indices.push_back((i + 1) * m + (j + 1) % m);
-          indices.push_back(i * m + (j + 1) % m);
-          indices.push_back(i * m + j);
-          indices.push_back((i + 1) * m + j);
-          indices.push_back((i + 1) * m + (j + 1) % m);
-        }
-      }
-    }
-
-    S2Material material =
-        make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 10.0, 0.2);
-    S2Kinematics kinematics = make_kinematics(
-        vec2(0.5, 0.5), 0.0, vec2(2.0, 2.0), 0.0, S2_MOBILITY_DYNAMIC);
-    create_mesh_body_from_vector(world, material, kinematics, vertices,
-                                 indices);
-
-    // Add some colliders into the scene
-    auto polygon_vertices = make_gear(10, 0.04, 0.02);
-    create_collider(
-        world,
-        make_kinematics({0.2f, 0.4f}, 0.0f, {}, -30.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(8, 0.015, 0.15, 1.0);
-    create_collider(
-        world,
-        make_kinematics({0.8f, 0.2f}, 0.0f, {}, -10.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(10, 0.04, 0.01);
-    create_collider(
-        world,
-        make_kinematics({1.5f, 0.45f}, 0.0f, {}, 20.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    n = 10;
-    for (int i = 1; i <= n; ++i) {
-      polygon_vertices = make_gear(20, 0.04, 0.01);
-      create_collider(
-          world,
-          make_kinematics({1.9f + 0.1f * i,
-                           -0.07f - 0.1f * (float)std::tan(0.18) * (i - 1)},
-                          0.0, {}, -60.0f, S2_MOBILITY_KINEMATIC),
-          make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-    }
-
-    create_collider(world, make_kinematics({1.9f, 0.5f}),
-                    make_box_shape(vec2(0.01f, 0.2f)));
-
-    create_collider(world, make_kinematics({3.1f, 0.0f}),
-                    make_box_shape(vec2(0.01f, 0.5f)));
-
-    trigger = create_trigger(world, make_kinematics({3.0f, -0.15f}),
-                             make_circle_shape(0.06f));
+    // A body with a size of 10x10.
+    create_body(
+        world, make_material(S2_MATERIAL_TYPE_SNOW, 1000.0f, 1.0f, 0.2),
+        make_kinematics({0.7f * config.extent.x, 0.5f * config.extent.x}, 0.0f,
+                        {0.0f, 0.0f}, 0.0f, S2_MOBILITY_DYNAMIC),
+        make_box_shape(vec2(10.0f, 10.0f)));
 
     // Add the boundary
     // bottom
-    // Give the body a bounce speed when it collides with the ground
-    S2CollisionParameter cp{};
-    cp.collision_type = S2_COLLISION_TYPE_SEPARATE;
-    cp.friction_coeff = 0.0f;
-    cp.restitution_coeff = 0.1f;
-    create_collider(world, make_kinematics({0.5f, 0.0f}, -0.18),
-                    make_box_shape(vec2(10.5f, 0.2f)), cp);
+    create_collider(
+        world, make_kinematics({config.extent.x * 0.5f, 0.0f}),
+        make_box_shape(vec2(config.extent.x * 0.5f, 0.01f * config.extent.x)));
     // top
-    create_collider(world, make_kinematics({0.5f, 1.0f}, -0.18),
-                    make_box_shape(vec2(10.5f, 0.2f)));
+    create_collider(
+        world, make_kinematics({config.extent.x * 0.5f, config.extent.x}),
+        make_box_shape(vec2(config.extent.x * 0.5f, 0.01f * config.extent.x)));
+    // left
+    create_collider(
+        world, make_kinematics({0.0f, config.extent.y * 0.5f}),
+        make_box_shape(vec2(0.01f * config.extent.x, config.extent.y * 0.5f)));
+    // right
+    create_collider(
+        world, make_kinematics({config.extent.y, config.extent.y * 0.5f}),
+        make_box_shape(vec2(0.01f * config.extent.x, config.extent.y * 0.5f)));
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -188,37 +119,36 @@ struct WorldOffset : public App {
                                .is_single_channel()
                                .color(glm::vec3(0.85, 0.1, 0.0))
                                .build();
-
     // Renderer initialization ends
   }
   int frame = 0;
   virtual void handle_window_event(GLFWwindow *window) override final {
-    float speed = 50.0f;
-    float scale = 0.005f;
-    S2Vec2 offset;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(-0.01f, 0.0f));
-      s2_set_world_offset(world, &offset);
-    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.01f, 0.0f));
-      s2_set_world_offset(world, &offset);
-    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.0f, 0.01f));
-      s2_set_world_offset(world, &offset);
-    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.0f, -0.01f));
-      s2_set_world_offset(world, &offset);
-    }
+    // float speed = 50.0f;
+    // float scale = 0.005f;
+    // S2Vec2 offset;
+    // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    //   offset = add(s2_get_world_config(world).offset, vec2(-0.01f, 0.0f));
+    //   s2_set_world_offset(world, &offset);
+    // } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    //   offset = add(s2_get_world_config(world).offset, vec2(0.01f, 0.0f));
+    //   s2_set_world_offset(world, &offset);
+    // } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    //   offset = add(s2_get_world_config(world).offset, vec2(0.0f, 0.01f));
+    //   s2_set_world_offset(world, &offset);
+    // } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    //   offset = add(s2_get_world_config(world).offset, vec2(0.0f, -0.01f));
+    //   s2_set_world_offset(world, &offset);
+    // }
   }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
     s2_step(world, 0.004);
 
-    // Test trigger overlapped
-    if (s2_query_trigger_overlapped(trigger)) {
-      std::cout << "The body reaches the destination!" << std::endl;
-    }
+    // // Test trigger overlapped
+    // if (s2_query_trigger_overlapped(trigger)) {
+    //   std::cout << "The body reaches the destination!" << std::endl;
+    // }
 
     // Export particle position data to the external buffer
     TiNdArray particle_x;
@@ -284,5 +214,5 @@ struct WorldOffset : public App {
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new WorldOffset);
+  return std::unique_ptr<App>(new WorldExtent);
 }
