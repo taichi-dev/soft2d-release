@@ -93,11 +93,11 @@ struct CollisionParameters : public App {
         auto shape = make_box_shape(vec2(0.01, 0.01));
         S2Material material =
             make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 0.3, 0.2);
-        S2Kinematics kinematic =
+        S2Kinematics kinematics =
             make_kinematics(vec2(x_left + 0.2 * (x_right - x_left),
                                  y_bottom + 0.3 * (y_top - y_bottom)),
                             0.7854, vec2(1.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
-        auto emitter = Emitter(world, material, kinematic, shape);
+        auto emitter = Emitter(world, material, kinematics, shape);
         emitter.SetFrequency(10);
         emitter.SetLifetime(10000);
         emitter.SetEmittingEndFrame(10);

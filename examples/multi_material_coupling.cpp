@@ -15,7 +15,7 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct Materials : public App {
+struct MultiMaterialCoupling : public App {
 
   S2World world;
   std::vector<Emitter> emitters;
@@ -39,65 +39,57 @@ struct Materials : public App {
 
     // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
-    // Use a smaller substep to avoid the numerical instability (caused by the
-    // large young's modulus).
-    config.substep_dt = 5e-5;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    // A matrix to show the different material parameters.
-    // From top to bottom: material is fluid, elastic, snow, sand.
-    // From left to right: young's modulus is 0.01, 0.1, 1, 10 (MPa).
-    float width = 1.0f / s2_get_world_config(world).grid_resolution * 2;
-    int n = 4;
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < n; ++j) {
-        float y_top = 1.0 - i * 1.0 / n;
-        float y_bottom = 1.0 - (i + 1) * 1.0 / n;
-        float x_center = (j + 0.5) / n;
-        float x_left = (j + 0.0) / n;
-        float x_right = (j + 1.0) / n;
-        float length = 0.5 * 1.0f / n;
+    auto shape = make_box_shape(vec2(0.025f, 0.025f));
+    S2Material material =
+        make_material(S2_MATERIAL_TYPE_FLUID, 1000.0, 1.0f, 0.2);
+    S2Kinematics kinematics = make_kinematics(
+        vec2(0.2f, 0.9f), 0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
 
-        // top
-        create_collider(
-            world,
-            make_kinematics(vec2(x_center, y_top - width / 2 /*- 0.03*/), 0.0,
-                            vec2(0.0, 0.0), 0.0, S2_MOBILITY_STATIC),
-            make_box_shape(vec2(length, width)));
-        // bottom
-        create_collider(world,
-                        make_kinematics(vec2(x_center, y_bottom + width / 2),
-                                        0.0, vec2(0.0, 0.0), 0.0,
-                                        S2_MOBILITY_STATIC),
-                        make_box_shape(vec2(length, width)));
-        // left
-        create_collider(world,
-                        make_kinematics(vec2(x_left, 0.5 * (y_top + y_bottom)),
-                                        0.0, vec2(0.0, 0.0), 0.0,
-                                        S2_MOBILITY_STATIC),
-                        make_box_shape(vec2(width, length)));
-        // right
-        create_collider(world,
-                        make_kinematics(vec2(x_right, 0.5 * (y_top + y_bottom)),
-                                        0.0, vec2(0.0, 0.0), 0.0,
-                                        S2_MOBILITY_STATIC),
-                        make_box_shape(vec2(width, length)));
+    // Fluid bodies
+    emitters.push_back(Emitter(world, material, kinematics, shape));
 
-        // Emitters
-        auto shape = make_capsule_shape(0.02, 0.03);
-        S2Material material = make_material((S2MaterialType)i, 1000.0,
-                                            0.01 * std::pow(10, j), 0.2);
-        S2Kinematics kinematics =
-            make_kinematics(vec2(x_left + 0.3 * (x_right - x_left),
-                                 y_bottom + 0.8 * (y_top - y_bottom)),
-                            0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
-        auto emitter = Emitter(world, material, kinematics, shape);
-        emitter.SetFrequency(10);
-        emitter.SetLifetime(10000);
-        emitter.SetEmittingEndFrame(10);
-        emitters.push_back(emitter);
-      }
+    // Elastic bodies
+    material.type = S2_MATERIAL_TYPE_ELASTIC;
+    kinematics.center = vec2(0.4f, 0.9f);
+    emitters.push_back(Emitter(world, material, kinematics, shape));
+
+    // Snow bodies
+    material.type = S2_MATERIAL_TYPE_SNOW;
+    kinematics.center = vec2(0.6f, 0.9f);
+    emitters.push_back(Emitter(world, material, kinematics, shape));
+
+    // Sand bodies
+    material.type = S2_MATERIAL_TYPE_SAND;
+    kinematics.center = vec2(0.8f, 0.9f);
+    emitters.push_back(Emitter(world, material, kinematics, shape));
+
+    for (auto &emitter : emitters) {
+      emitter.SetFrequency(30);
+      emitter.SetEmittingEndFrame(500);
     }
+
+    // Add two slopes
+    create_collider(world, make_kinematics({0.25f, 0.5f}, -0.7854),
+                    make_box_shape(vec2(0.22f, 0.01f)));
+
+    create_collider(world, make_kinematics({0.75f, 0.5f}, 0.7854),
+                    make_box_shape(vec2(0.22f, 0.01f)));
+
+    // Add the boundary
+    // bottom
+    create_collider(world, make_kinematics({0.5f, 0.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // top
+    create_collider(world, make_kinematics({0.5f, 1.0f}),
+                    make_box_shape(vec2(0.5f, 0.01f)));
+    // left
+    create_collider(world, make_kinematics({0.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
+    // right
+    create_collider(world, make_kinematics({1.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 0.5f)));
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -159,5 +151,5 @@ struct Materials : public App {
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new Materials);
+  return std::unique_ptr<App>(new MultiMaterialCoupling);
 }
