@@ -122,33 +122,10 @@ struct WorldExtent : public App {
     // Renderer initialization ends
   }
   int frame = 0;
-  virtual void handle_window_event(GLFWwindow *window) override final {
-    // float speed = 50.0f;
-    // float scale = 0.005f;
-    // S2Vec2 offset;
-    // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    //   offset = add(s2_get_world_config(world).offset, vec2(-0.01f, 0.0f));
-    //   s2_set_world_offset(world, &offset);
-    // } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    //   offset = add(s2_get_world_config(world).offset, vec2(0.01f, 0.0f));
-    //   s2_set_world_offset(world, &offset);
-    // } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    //   offset = add(s2_get_world_config(world).offset, vec2(0.0f, 0.01f));
-    //   s2_set_world_offset(world, &offset);
-    // } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    //   offset = add(s2_get_world_config(world).offset, vec2(0.0f, -0.01f));
-    //   s2_set_world_offset(world, &offset);
-    // }
-  }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
     s2_step(world, 0.004);
-
-    // // Test trigger overlapped
-    // if (s2_query_trigger_overlapped(trigger)) {
-    //   std::cout << "The body reaches the destination!" << std::endl;
-    // }
 
     // Export particle position data to the external buffer
     TiNdArray particle_x;

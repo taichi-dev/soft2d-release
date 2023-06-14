@@ -72,6 +72,10 @@ struct ForceField : public App {
     // right
     create_collider(world, make_kinematics({1.0f, 0.5f}),
                     make_box_shape(vec2(0.01f, 0.5f)));
+
+    std::cout << "Drag the mouse on the screen to apply an impulse in a "
+                 "circular area."
+              << std::endl;
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -99,6 +103,7 @@ struct ForceField : public App {
     // Renderer initialization ends
   }
   int frame = 0;
+  // Apply an impulse in a circular area by dragging the mouse on the screen.
   virtual void handle_window_event(GLFWwindow *window) override final {
     static bool on_drag = false;
     static double last_xpos;
@@ -127,7 +132,6 @@ struct ForceField : public App {
       glm::vec2 force =
           (glm::vec2(xpos, ypos) - glm::vec2(last_xpos, last_ypos)) * 2.2f *
           300.0f * 0.004f;
-      // world->AddForceField(force, step_dt, Vec2(xpos, ypos), 0.04f);
       S2Vec2 s_force = {force.x, force.y};
       S2Vec2 s_center = {xpos, ypos};
       s2_apply_impulse_in_circular_area(world, &s_force, &s_center, 0.04f);

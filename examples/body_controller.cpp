@@ -13,39 +13,14 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
-  std::vector<S2Vec2> gear_points;
-  int n_tooth = n;
-  float r0 = r;
-  float l = len;
-  for (int i = 0; i < n_tooth; ++i) {
-    float theta = 2 * M_PI / n_tooth * i;
-    if (i & 1) {
-      float delta = 2 * M_PI / n_tooth * 0.5f * width;
-      auto dir = vec2(std::cos(theta), std::sin(theta));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta - delta), std::sin(theta - delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          add(mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0),
-              mul(dir, l)));
-      gear_points.push_back(
-          mul(vec2(std::cos(theta + delta), std::sin(theta + delta)), r0));
-    } else {
-    }
-  }
-  return gear_points;
-}
-
 constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct WorldOffset : public App {
+struct BodyController : public App {
 
   S2World world;
+  S2Body body;
   S2Trigger trigger;
 
   std::unique_ptr<GraphicsTask> draw_points;
@@ -107,47 +82,21 @@ struct WorldOffset : public App {
     S2Material material =
         make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 10.0, 0.2);
     S2Kinematics kinematics = make_kinematics(
-        vec2(0.5, 0.5), 0.0, vec2(2.0, 2.0), 0.0, S2_MOBILITY_DYNAMIC);
-    create_mesh_body_from_vector(world, material, kinematics, vertices,
-                                 indices);
-
-    // Add some colliders into the scene
-    auto polygon_vertices = make_gear(10, 0.04, 0.02);
-    create_collider(
-        world,
-        make_kinematics({0.2f, 0.4f}, 0.0f, {}, -30.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(8, 0.015, 0.15, 1.0);
-    create_collider(
-        world,
-        make_kinematics({0.8f, 0.2f}, 0.0f, {}, -10.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
-
-    polygon_vertices = make_gear(10, 0.04, 0.01);
-    create_collider(
-        world,
-        make_kinematics({1.5f, 0.45f}, 0.0f, {}, 20.0f, S2_MOBILITY_KINEMATIC),
-        make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+        vec2(0.5, 0.2), 0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
+    body = create_mesh_body_from_vector(world, material, kinematics, vertices,
+                                        indices);
 
     n = 10;
+    float y_pos[3] = {0.3f, 0.5f, 0.7f};
     for (int i = 1; i <= n; ++i) {
-      polygon_vertices = make_gear(20, 0.04, 0.01);
-      create_collider(
-          world,
-          make_kinematics({1.9f + 0.1f * i,
-                           -0.07f - 0.1f * (float)std::tan(0.18) * (i - 1)},
-                          0.0, {}, -60.0f, S2_MOBILITY_KINEMATIC),
-          make_polygon_shape(polygon_vertices.data(), polygon_vertices.size()));
+      create_collider(world, make_kinematics({0.25f * i, y_pos[random() % 3]}),
+                      make_box_shape(vec2(0.01f, 0.05f)));
     }
 
-    create_collider(world, make_kinematics({1.9f, 0.5f}),
-                    make_box_shape(vec2(0.01f, 0.2f)));
-
-    create_collider(world, make_kinematics({3.1f, 0.0f}),
+    create_collider(world, make_kinematics({3.1f, 0.5f}),
                     make_box_shape(vec2(0.01f, 0.5f)));
 
-    trigger = create_trigger(world, make_kinematics({3.0f, -0.15f}),
+    trigger = create_trigger(world, make_kinematics({3.0f, 0.3f}),
                              make_circle_shape(0.06f));
 
     // Add the boundary
@@ -156,15 +105,14 @@ struct WorldOffset : public App {
     S2CollisionParameter cp{};
     cp.collision_type = S2_COLLISION_TYPE_SEPARATE;
     cp.friction_coeff = 0.0f;
-    cp.restitution_coeff = 0.1f;
-    create_collider(world, make_kinematics({0.5f, 0.0f}, -0.18),
+    cp.restitution_coeff = 0.0f;
+    create_collider(world, make_kinematics({0.5f, 0.0f}, 0.0),
                     make_box_shape(vec2(10.5f, 0.2f)), cp);
     // top
-    create_collider(world, make_kinematics({0.5f, 1.0f}, -0.18),
+    create_collider(world, make_kinematics({0.5f, 1.0f}, 0.0),
                     make_box_shape(vec2(10.5f, 0.2f)));
 
-    std::cout << "Use A/S/D/W to move the viewport of the renderer."
-              << std::endl;
+    std::cout << "Use A/S/D/W to control the body." << std::endl;
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -196,26 +144,31 @@ struct WorldOffset : public App {
   }
   int frame = 0;
   virtual void handle_window_event(GLFWwindow *window) override final {
-    float speed = 50.0f;
-    float scale = 0.005f;
-    S2Vec2 offset;
+    // Apply a linear impulse to body using A/S/D/W keys
+    S2Vec2 impulse;
+    float scale = 0.2f;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(-0.01f, 0.0f));
-      s2_set_world_offset(world, &offset);
+      impulse = {-scale, 0.0f};
+      s2_apply_linear_impulse(body, &impulse);
     } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.01f, 0.0f));
-      s2_set_world_offset(world, &offset);
+      impulse = {scale, 0.0f};
+      s2_apply_linear_impulse(body, &impulse);
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.0f, 0.01f));
-      s2_set_world_offset(world, &offset);
+      impulse = {0.0f, scale};
+      s2_apply_linear_impulse(body, &impulse);
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-      offset = add(s2_get_world_config(world).offset, vec2(0.0f, -0.01f));
-      s2_set_world_offset(world, &offset);
+      impulse = {0.0f, -scale};
+      s2_apply_linear_impulse(body, &impulse);
     }
   }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
+    if (frame && frame > 0) {
+      auto new_world_offset =
+          add(s2_get_world_config(world).offset, vec2(0.005f, 0.0f));
+      s2_set_world_offset(world, &new_world_offset);
+    }
     s2_step(world, 0.004);
 
     // Test trigger overlapped
@@ -287,5 +240,5 @@ struct WorldOffset : public App {
 };
 
 std::unique_ptr<App> create_app() {
-  return std::unique_ptr<App>(new WorldOffset);
+  return std::unique_ptr<App>(new BodyController);
 }
