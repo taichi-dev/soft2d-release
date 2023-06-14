@@ -35,34 +35,9 @@ struct ForceField : public App {
   }
 
   virtual void initialize() override final {
-
-    // Renderer initialization
-    Renderer &renderer = F.renderer();
-    renderer.set_framebuffer_size(win_width, win_height);
-
     GraphicsRuntime &runtime = F.runtime();
 
-    x_ = runtime.allocate_vertex_buffer(
-        default_world_config.max_allowed_particle_num, 2);
-
-    collider_texture_ =
-        runtime.allocate_texture2d(default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   TI_FORMAT_R32F, TI_NULL_HANDLE);
-
-    draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
-                      .color(glm::vec3(1, 0.5, 0))
-                      .build();
-    draw_collider_texture = runtime.draw_texture(collider_texture_)
-                                .is_single_channel()
-                                .color(glm::vec3(0.2, 0.8, 0.0))
-                                .build();
-
-    // Soft2D initialization
-    // Create a world
+    // Soft2D initialization begins
     S2WorldConfig config = default_world_config;
     config.enable_debugging = true;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
@@ -97,6 +72,31 @@ struct ForceField : public App {
     // right
     create_collider(world, make_kinematics({1.0f, 0.5f}),
                     make_box_shape(vec2(0.01f, 0.5f)));
+    // Soft2D initialization ends
+
+    // Renderer initialization begins
+    Renderer &renderer = F.renderer();
+    renderer.set_framebuffer_size(win_width, win_height);
+
+    x_ = runtime.allocate_vertex_buffer(
+        default_world_config.max_allowed_particle_num, 2);
+
+    collider_texture_ =
+        runtime.allocate_texture2d(default_world_config.grid_resolution *
+                                       default_world_config.fine_grid_scale,
+                                   default_world_config.grid_resolution *
+                                       default_world_config.fine_grid_scale,
+                                   TI_FORMAT_R32F, TI_NULL_HANDLE);
+
+    draw_points = runtime.draw_points(x_)
+                      .point_size(3.0f)
+                      .color(glm::vec3(1, 0.5, 0))
+                      .build();
+    draw_collider_texture = runtime.draw_texture(collider_texture_)
+                                .is_single_channel()
+                                .color(glm::vec3(0.2, 0.8, 0.0))
+                                .build();
+    // Renderer initialization ends
   }
   int frame = 0;
   virtual void handle_window_event(GLFWwindow *window) override final {

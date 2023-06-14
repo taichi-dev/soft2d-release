@@ -30,21 +30,9 @@ struct Minimal : public App {
   }
 
   virtual void initialize() override final {
-
-    // Renderer initialization
-    Renderer &renderer = F.renderer();
-    renderer.set_framebuffer_size(win_width, win_height);
-
     GraphicsRuntime &runtime = F.runtime();
 
-    x_ = runtime.allocate_vertex_buffer(90000, 2);
-
-    draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
-                      .color(glm::vec3(1, 0.5, 0))
-                      .build();
-
-    // Soft2D initialization
+    // Soft2D initialization begins
     // Create a world
     S2WorldConfig config{};
     config.max_allowed_particle_num = 90000;
@@ -106,6 +94,19 @@ struct Minimal : public App {
     kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
 
     s2_create_body(world, &material, &kinematics, &shape, 0);
+    // Soft2D initialization ends
+
+    // Renderer initialization begins
+    Renderer &renderer = F.renderer();
+    renderer.set_framebuffer_size(win_width, win_height);
+
+    x_ = runtime.allocate_vertex_buffer(90000, 2);
+
+    draw_points = runtime.draw_points(x_)
+                      .point_size(3.0f)
+                      .color(glm::vec3(1, 0.5, 0))
+                      .build();
+    // Renderer initialization ends
   }
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();

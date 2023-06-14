@@ -163,6 +163,7 @@ struct WorldOffset : public App {
     // top
     create_collider(world, make_kinematics({0.5f, 1.0f}, -0.18),
                     make_box_shape(vec2(10.5f, 0.2f)));
+    // Soft2D initialization ends
 
     // Renderer initialization begins
     Renderer &renderer = F.renderer();
