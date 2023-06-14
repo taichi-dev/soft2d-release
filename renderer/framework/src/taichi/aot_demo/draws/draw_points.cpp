@@ -19,8 +19,8 @@ std::unique_ptr<GraphicsTask> DrawPointsBuilder::build() {
   case 2: {
     {
       std::stringstream ss;
-      ss << "vec4((pos.x-" << world_offset_.x << ")/" << world_extent_.x
-         << " * 2.0 - 1.0, (1.0 - (pos.y-" << world_offset_.y << ")/"
+      ss << "vec4((pos.x-(" << world_offset_.x << "))/" << world_extent_.x
+         << " * 2.0 - 1.0, (1.0 - (pos.y-(" << world_offset_.y << "))/"
          << world_extent_.y << ") * 2.0 - 1.0, 0.0f, 1.0f);";
       vert_str = ss.str();
     }
