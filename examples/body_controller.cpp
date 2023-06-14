@@ -52,6 +52,7 @@ struct BodyController : public App {
         S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_DEACTIVATION;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
+    // Add a mesh body
     auto vertices = std::vector<S2Vec2>{};
     auto indices = std::vector<int>{};
     int n = 5;
@@ -82,35 +83,31 @@ struct BodyController : public App {
     S2Material material =
         make_material(S2_MATERIAL_TYPE_ELASTIC, 1000.0, 10.0, 0.2);
     S2Kinematics kinematics = make_kinematics(
-        vec2(0.5, 0.2), 0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
+        vec2(0.5, 0.4), 0.0, vec2(0.0, 0.0), 0.0, S2_MOBILITY_DYNAMIC);
     body = create_mesh_body_from_vector(world, material, kinematics, vertices,
                                         indices);
 
+    // Add some slopes
     n = 10;
-    float y_pos[3] = {0.3f, 0.5f, 0.7f};
-    for (int i = 1; i <= n; ++i) {
-      create_collider(world, make_kinematics({0.25f * i, y_pos[random() % 3]}),
-                      make_box_shape(vec2(0.01f, 0.05f)));
+    for (int i = 0; i < n; ++i) {
+      create_collider(world, make_kinematics({0.0, i * 0.5f + 0.1f}, -0.18),
+                      make_box_shape(vec2(0.8f, 0.01f)));
+      create_collider(world,
+                      make_kinematics({1.0, i * 0.5f + 0.1f + 0.25f}, 0.18),
+                      make_box_shape(vec2(0.8f, 0.01f)));
     }
 
-    create_collider(world, make_kinematics({3.1f, 0.5f}),
-                    make_box_shape(vec2(0.01f, 0.5f)));
-
-    trigger = create_trigger(world, make_kinematics({3.0f, 0.3f}),
+    // Add a trigger as the destination
+    trigger = create_trigger(world, make_kinematics({0.5f, 1.85f}),
                              make_circle_shape(0.06f));
 
     // Add the boundary
-    // bottom
-    // Give the body a bounce speed when it collides with the ground
-    S2CollisionParameter cp{};
-    cp.collision_type = S2_COLLISION_TYPE_SEPARATE;
-    cp.friction_coeff = 0.0f;
-    cp.restitution_coeff = 0.0f;
-    create_collider(world, make_kinematics({0.5f, 0.0f}, 0.0),
-                    make_box_shape(vec2(10.5f, 0.2f)), cp);
-    // top
-    create_collider(world, make_kinematics({0.5f, 1.0f}, 0.0),
-                    make_box_shape(vec2(10.5f, 0.2f)));
+    // left
+    create_collider(world, make_kinematics({0.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 10.5f)));
+    // right
+    create_collider(world, make_kinematics({1.0f, 0.5f}),
+                    make_box_shape(vec2(0.01f, 10.5f)));
 
     std::cout << "Use A/S/D/W to control the body." << std::endl;
     // Soft2D initialization ends
@@ -144,9 +141,9 @@ struct BodyController : public App {
   }
   int frame = 0;
   virtual void handle_window_event(GLFWwindow *window) override final {
-    // Apply a linear impulse to body using A/S/D/W keys
+    // Apply a linear impulse to the body using A/S/D/W keys
     S2Vec2 impulse;
-    float scale = 0.2f;
+    float scale = 0.15f;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
       impulse = {-scale, 0.0f};
       s2_apply_linear_impulse(body, &impulse);
@@ -164,9 +161,10 @@ struct BodyController : public App {
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
+    // Automatically slowly move the world offset
     if (frame && frame > 0) {
       auto new_world_offset =
-          add(s2_get_world_config(world).offset, vec2(0.005f, 0.0f));
+          add(s2_get_world_config(world).offset, vec2(0.0f, 0.002f));
       s2_set_world_offset(world, &new_world_offset);
     }
     s2_step(world, 0.004);

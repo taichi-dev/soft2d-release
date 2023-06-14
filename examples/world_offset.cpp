@@ -77,6 +77,7 @@ struct WorldOffset : public App {
         S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_DEACTIVATION;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
+    // Add a mesh body
     auto vertices = std::vector<S2Vec2>{};
     auto indices = std::vector<int>{};
     int n = 5;
@@ -147,6 +148,7 @@ struct WorldOffset : public App {
     create_collider(world, make_kinematics({3.1f, 0.0f}),
                     make_box_shape(vec2(0.01f, 0.5f)));
 
+    // Add a trigger as the destination
     trigger = create_trigger(world, make_kinematics({3.0f, -0.15f}),
                              make_circle_shape(0.06f));
 
@@ -163,8 +165,7 @@ struct WorldOffset : public App {
     create_collider(world, make_kinematics({0.5f, 1.0f}, -0.18),
                     make_box_shape(vec2(10.5f, 0.2f)));
 
-    std::cout << "Use A/S/D/W to move the viewport of the renderer."
-              << std::endl;
+    std::cout << "Use A/S/D/W to change the world's offset." << std::endl;
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -195,6 +196,7 @@ struct WorldOffset : public App {
     // Renderer initialization ends
   }
   int frame = 0;
+  // Move the world's offset by W/A/S/D keys.
   virtual void handle_window_event(GLFWwindow *window) override final {
     float speed = 50.0f;
     float scale = 0.005f;
