@@ -262,9 +262,9 @@ struct BackgroundGrid : public App {
   virtual void render() override final {
     Renderer &renderer = F.renderer();
     renderer.enqueue_graphics_task(*draw_grid_mesh);
+    // renderer.enqueue_graphics_task(*draw_grid_nodes);
     renderer.enqueue_graphics_task(*draw_mesh);
     // renderer.enqueue_graphics_task(*draw_points);
-    // renderer.enqueue_graphics_task(*draw_grid_nodes);
     renderer.enqueue_graphics_task(*draw_collider_texture);
     renderer.enqueue_graphics_task(*draw_trigger_texture);
   }
