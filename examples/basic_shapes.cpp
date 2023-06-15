@@ -38,7 +38,7 @@ struct BasicShapes : public App {
 
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    // Create a box body
+    // Create a box-shape body
     S2Shape shape = make_box_shape(vec2(0.03f, 0.02f));
 
     S2Material material;
@@ -54,7 +54,7 @@ struct BasicShapes : public App {
 
     create_body(world, material, kinematics, shape);
 
-    // Circle body
+    // Create a circle-shape body
     S2Shape circle_shape = make_circle_shape(0.03f);
 
     S2Material circle_material{};
@@ -68,7 +68,7 @@ struct BasicShapes : public App {
     circle_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
     create_body(world, circle_material, circle_kinematics, circle_shape);
 
-    // Ellipse body
+    // Create a ellipse-shape body
     S2Shape ellipse_shape = make_ellipse_shape(0.03f, 0.02f);
 
     S2Material ellipse_material{};
@@ -82,7 +82,7 @@ struct BasicShapes : public App {
     ellipse_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
     create_body(world, ellipse_material, ellipse_kinematics, ellipse_shape);
 
-    // Capsule body
+    // Create a capsule-shape body
     S2Shape capsule_shape = make_capsule_shape(0.03f, 0.02f);
 
     S2Material capsule_material{};
@@ -96,7 +96,7 @@ struct BasicShapes : public App {
     capsule_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
     create_body(world, capsule_material, capsule_kinematics, capsule_shape);
 
-    // Polygon body
+    // Create a polygon-shape body
     auto polygon_vertices = std::vector<S2Vec2>{
         {-0.05, -0.05},   {-0.015, -0.025}, {0.0, -0.05},   {0.0125, 0.0125},
         {0.0125, 0.0375}, {-0.0375, 0.025}, {-0.05625, 0.0}};
@@ -114,7 +114,7 @@ struct BasicShapes : public App {
     polygon_kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
     create_body(world, polygon_material, polygon_kinematics, polygon_shape);
 
-    // Add the ground
+    // Add the ground (no visualization)
     create_collider(world, make_kinematics({0.5f, 0.0f}),
                     make_box_shape(vec2(0.5f, 0.01f)));
     // Soft2D initialization ends

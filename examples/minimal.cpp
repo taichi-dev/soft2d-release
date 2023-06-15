@@ -71,7 +71,7 @@ struct Minimal : public App {
 
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
-    // Create a box body
+    // Create a body with a box shape
     S2BoxShape box_shape;
     S2Vec2 half_extent;
     half_extent.x = 0.03f;
@@ -114,7 +114,7 @@ struct Minimal : public App {
   virtual bool update() override final {
     GraphicsRuntime &runtime = F.runtime();
 
-    // Step forward
+    // Simulate the world forward by a specified time step
     s2_step(world, 0.004);
 
     // Export particle position data to the external buffer
