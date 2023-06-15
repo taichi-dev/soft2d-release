@@ -123,8 +123,7 @@ struct BasicShapes : public App {
     Renderer &renderer = F.renderer();
     renderer.set_framebuffer_size(win_width, win_height);
 
-    x_ = runtime.allocate_vertex_buffer(
-        default_world_config.max_allowed_particle_num, 2);
+    x_ = runtime.allocate_vertex_buffer(config.max_allowed_particle_num, 2);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -142,7 +141,7 @@ struct BasicShapes : public App {
     s2_get_buffer(world, S2_BUFFER_NAME_PARTICLE_POSITION, &particle_x);
     ndarray_data_copy(runtime.runtime(), x_.ndarray(), particle_x,
                       sizeof(float) * 2 *
-                          default_world_config.max_allowed_particle_num);
+                          s2_get_world_config(world).max_allowed_particle_num);
 
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which

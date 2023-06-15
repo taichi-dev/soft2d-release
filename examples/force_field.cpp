@@ -82,15 +82,12 @@ struct ForceField : public App {
     Renderer &renderer = F.renderer();
     renderer.set_framebuffer_size(win_width, win_height);
 
-    x_ = runtime.allocate_vertex_buffer(
-        default_world_config.max_allowed_particle_num, 2);
+    x_ = runtime.allocate_vertex_buffer(config.max_allowed_particle_num, 2);
 
-    collider_texture_ =
-        runtime.allocate_texture2d(default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   TI_FORMAT_R32F, TI_NULL_HANDLE);
+    collider_texture_ = runtime.allocate_texture2d(
+        config.grid_resolution * config.fine_grid_scale,
+        config.grid_resolution * config.fine_grid_scale, TI_FORMAT_R32F,
+        TI_NULL_HANDLE);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -133,7 +130,7 @@ struct ForceField : public App {
           (glm::vec2(xpos, ypos) - glm::vec2(last_xpos, last_ypos)) * 2.2f *
           300.0f * 0.004f;
       S2Vec2 s_force = {force.x, force.y};
-      S2Vec2 s_center = {xpos, ypos};
+      S2Vec2 s_center = {(float)xpos, (float)ypos};
       s2_apply_impulse_in_circular_area(world, &s_force, &s_center, 0.04f);
       last_xpos = xpos;
       last_ypos = ypos;
@@ -152,7 +149,7 @@ struct ForceField : public App {
     s2_get_buffer(world, S2_BUFFER_NAME_PARTICLE_POSITION, &particle_x);
     ndarray_data_copy(runtime.runtime(), x_.ndarray(), particle_x,
                       sizeof(float) * 2 *
-                          default_world_config.max_allowed_particle_num);
+                          s2_get_world_config(world).max_allowed_particle_num);
 
     // Export collider buffer to texture
     auto texture = collider_texture_.texture();

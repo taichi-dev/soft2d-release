@@ -33,35 +33,38 @@ struct Minimal : public App {
     GraphicsRuntime &runtime = F.runtime();
 
     // Soft2D initialization begins
-    // Create a world
+    // Create a world with specifed parameters
     S2WorldConfig config{};
     config.max_allowed_particle_num = 90000;
     config.max_allowed_body_num = 10000;
     config.max_allowed_element_num = 10000;
     config.max_allowed_trigger_num = 10000;
     config.grid_resolution = 128;
+    // Remove the body if it is out of the world boundary
     config.out_world_boundary_policy =
         S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING;
-
-    S2Vec2 offset;
-    offset.x = 0.0f;
-    offset.y = 0.0f;
-    config.offset = offset;
-
-    S2Vec2 extent;
-    extent.x = 1.0f;
-    extent.y = 1.0f;
-    config.extent = extent;
-    config.substep_dt = 1e-4f;
-
-    S2Vec2 gravity;
-    gravity.x = 0.0f;
-    gravity.y = -9.8f;
-    config.gravity = gravity;
-
+    {
+      S2Vec2 offset;
+      offset.x = 0.0f;
+      offset.y = 0.0f;
+      config.offset = offset;
+    }
+    {
+      S2Vec2 extent;
+      extent.x = 1.0f;
+      extent.y = 1.0f;
+      config.extent = extent;
+      config.substep_dt = 1e-4f;
+    }
+    {
+      S2Vec2 gravity;
+      gravity.x = 0.0f;
+      gravity.y = -9.8f;
+      config.gravity = gravity;
+    }
     config.enable_debugging = false;
     config.enable_world_query = false;
-    config.mesh_body_force_scale = 1e6f;
+    config.mesh_body_force_scale = 1e-6f;
     config.collision_penalty_force_scale_along_normal_dir = 0.1f;
     config.collision_penalty_force_scale_along_velocity_dir = 0.1f;
     config.fine_grid_scale = 4;
@@ -114,20 +117,11 @@ struct Minimal : public App {
     // Step forward
     s2_step(world, 0.004);
 
-    // Get particle position gpu buffer
+    // Export particle position data to the external buffer
     TiNdArray particle_x;
     s2_get_buffer(world, S2_BUFFER_NAME_PARTICLE_POSITION, &particle_x);
-
-    // Export particle position data to the external buffer
-    TiMemorySlice src;
-    src.memory = particle_x.memory;
-    src.offset = 0;
-    src.size = sizeof(float) * 2 * 90000;
-    TiMemorySlice dst;
-    dst.memory = x_.memory();
-    dst.offset = 0;
-    dst.size = sizeof(float) * 2 * 90000;
-    ti_copy_memory_device_to_device(runtime, &dst, &src);
+    ndarray_data_copy(runtime.runtime(), x_.ndarray(), particle_x,
+                      sizeof(float) * 2 * 90000);
 
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which

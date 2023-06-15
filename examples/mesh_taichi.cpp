@@ -419,16 +419,13 @@ struct MeshTaichi : public App {
     Renderer &renderer = F.renderer();
     renderer.set_framebuffer_size(win_width, win_height);
 
-    x_ = runtime.allocate_vertex_buffer(
-        default_world_config.max_allowed_particle_num, 2);
-    collider_texture_ =
-        runtime.allocate_texture2d(default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   default_world_config.grid_resolution *
-                                       default_world_config.fine_grid_scale,
-                                   TI_FORMAT_R32F, TI_NULL_HANDLE);
-    element_indices_ = runtime.allocate_index_buffer(
-        default_world_config.max_allowed_element_num * 3, 1);
+    x_ = runtime.allocate_vertex_buffer(config.max_allowed_particle_num, 2);
+    collider_texture_ = runtime.allocate_texture2d(
+        config.grid_resolution * config.fine_grid_scale,
+        config.grid_resolution * config.fine_grid_scale, TI_FORMAT_R32F,
+        TI_NULL_HANDLE);
+    element_indices_ =
+        runtime.allocate_index_buffer(config.max_allowed_element_num * 3, 1);
 
     draw_points = runtime.draw_points(x_)
                       .point_size(3.0f)
@@ -471,7 +468,7 @@ struct MeshTaichi : public App {
     s2_get_buffer(world, S2_BUFFER_NAME_PARTICLE_POSITION, &particle_x);
     ndarray_data_copy(runtime.runtime(), x_.ndarray(), particle_x,
                       sizeof(float) * 2 *
-                          default_world_config.max_allowed_particle_num);
+                          s2_get_world_config(world).max_allowed_particle_num);
 
     // Export collider buffer to texture
     auto texture = collider_texture_.texture();
@@ -483,7 +480,7 @@ struct MeshTaichi : public App {
     s2_get_buffer(world, S2_BUFFER_NAME_ELEMENT_INDICES, &element_indices_tmp);
     ndarray_data_copy(
         runtime.runtime(), element_indices_.ndarray(), element_indices_tmp,
-        sizeof(int) * 3 * default_world_config.max_allowed_element_num);
+        sizeof(int) * 3 * s2_get_world_config(world).max_allowed_element_num);
 
     // Since taichi and renderer use different command buffers, we must
     // explicitly use flushing (submitting taichi's command list) here, which
