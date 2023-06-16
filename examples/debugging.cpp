@@ -60,7 +60,6 @@ struct Debugging : public App {
 
     trigger = create_trigger(world, make_kinematics({0.5f, 0.3f}),
                              make_box_shape(vec2(0.06f, 0.06f)));
-
     // Soft2D initialization ends
 
     // Renderer initialization begins
