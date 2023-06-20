@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['s2_5fbuffer_5fname_5felement_5findices_0',['S2_BUFFER_NAME_ELEMENT_INDICES',['../a00044.html#a70de43c8220de6b588a999bf39269531af3b86a1fb174d1397a87bb343d70ebb6',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5ffine_5fgrid_5fcollider_5fnum_1',['S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM',['../a00044.html#a70de43c8220de6b588a999bf39269531a0d4c90c4a98c3ac8dce81c582304a130',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5ffine_5fgrid_5ftrigger_5fid_2',['S2_BUFFER_NAME_FINE_GRID_TRIGGER_ID',['../a00044.html#a70de43c8220de6b588a999bf39269531a8dcf7330ede7a434dd6f5fb9b4932452',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5fparticle_5fid_3',['S2_BUFFER_NAME_PARTICLE_ID',['../a00044.html#a70de43c8220de6b588a999bf39269531a066b6648959526b00a53f97f6c1e28a2',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5fparticle_5fnum_4',['S2_BUFFER_NAME_PARTICLE_NUM',['../a00044.html#a70de43c8220de6b588a999bf39269531af31322b812b609e80391110e2fc6f63f',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5fparticle_5fposition_5',['S2_BUFFER_NAME_PARTICLE_POSITION',['../a00044.html#a70de43c8220de6b588a999bf39269531a313b6017b8bfdcbfa9bc2bfe763b1c5e',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5fparticle_5ftag_6',['S2_BUFFER_NAME_PARTICLE_TAG',['../a00044.html#a70de43c8220de6b588a999bf39269531a5cd19ba437e5c9500ae59dbb36634389',1,'soft2d_core.h']]],
+  ['s2_5fbuffer_5fname_5fparticle_5fvelocity_7',['S2_BUFFER_NAME_PARTICLE_VELOCITY',['../a00044.html#a70de43c8220de6b588a999bf39269531ae218a5bd822eb59c1bbe84d1c3aa266c',1,'soft2d_core.h']]],
+  ['s2_5fcollision_5ftype_5fseparate_8',['S2_COLLISION_TYPE_SEPARATE',['../a00044.html#aea4bf88c468df6dfee2740b10c97d3f4a2b22ccdb4774187e6cc03ccb07f7dcb2',1,'soft2d_core.h']]],
+  ['s2_5fcollision_5ftype_5fslip_9',['S2_COLLISION_TYPE_SLIP',['../a00044.html#aea4bf88c468df6dfee2740b10c97d3f4ab55d70e35131f6253506898638be25b3',1,'soft2d_core.h']]],
+  ['s2_5fcollision_5ftype_5fsticky_10',['S2_COLLISION_TYPE_STICKY',['../a00044.html#aea4bf88c468df6dfee2740b10c97d3f4a47f174ef3a5d74f8c160f7aa9e1fda64',1,'soft2d_core.h']]],
+  ['s2_5fmaterial_5ftype_5felastic_11',['S2_MATERIAL_TYPE_ELASTIC',['../a00044.html#a83dddee04fa7596ca84854cadfe2cb4cae2db17655664c655ead6cae7cf8b1fb7',1,'soft2d_core.h']]],
+  ['s2_5fmaterial_5ftype_5ffluid_12',['S2_MATERIAL_TYPE_FLUID',['../a00044.html#a83dddee04fa7596ca84854cadfe2cb4ca9db7589a8bbd12e8185f724ff48abb5b',1,'soft2d_core.h']]],
+  ['s2_5fmaterial_5ftype_5fsand_13',['S2_MATERIAL_TYPE_SAND',['../a00044.html#a83dddee04fa7596ca84854cadfe2cb4caf0d5e1e378d6be196623b07835f8796d',1,'soft2d_core.h']]],
+  ['s2_5fmaterial_5ftype_5fsnow_14',['S2_MATERIAL_TYPE_SNOW',['../a00044.html#a83dddee04fa7596ca84854cadfe2cb4cad5ba33fd6977e3a165ff5e1ff6143fc0',1,'soft2d_core.h']]],
+  ['s2_5fmobility_5fdynamic_15',['S2_MOBILITY_DYNAMIC',['../a00044.html#af6e9bdd26188eaaa781fbd2e08455788afa39d86751d4c809d18fcb49e0d4e081',1,'soft2d_core.h']]],
+  ['s2_5fmobility_5fkinematic_16',['S2_MOBILITY_KINEMATIC',['../a00044.html#af6e9bdd26188eaaa781fbd2e08455788a5e54399a13e704245953eef121ea4812',1,'soft2d_core.h']]],
+  ['s2_5fmobility_5fstatic_17',['S2_MOBILITY_STATIC',['../a00044.html#af6e9bdd26188eaaa781fbd2e08455788ae0ddd3c305d94f6de5b9d3dcbdb8e35f',1,'soft2d_core.h']]],
+  ['s2_5fout_5fworld_5fboundary_5fpolicy_5fdeactivation_18',['S2_OUT_WORLD_BOUNDARY_POLICY_DEACTIVATION',['../a00044.html#a100ce165bff920214c3a957c0cc85231a22c3892d2c6ea983539d40a7f54bc82f',1,'soft2d_core.h']]],
+  ['s2_5fout_5fworld_5fboundary_5fpolicy_5fremoving_19',['S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING',['../a00044.html#a100ce165bff920214c3a957c0cc85231a10cc120e71be8947c9cb81189470b495',1,'soft2d_core.h']]],
+  ['s2_5fshape_5ftype_5fbox_20',['S2_SHAPE_TYPE_BOX',['../a00044.html#a0dfd020f6b4f622e7deb4c92104bda0aaa413b26c887f54be0794496a33f0b03f',1,'soft2d_core.h']]],
+  ['s2_5fshape_5ftype_5fcapsule_21',['S2_SHAPE_TYPE_CAPSULE',['../a00044.html#a0dfd020f6b4f622e7deb4c92104bda0aaf6928b9ee7f6e31932f08e59584f97c3',1,'soft2d_core.h']]],
+  ['s2_5fshape_5ftype_5fcircle_22',['S2_SHAPE_TYPE_CIRCLE',['../a00044.html#a0dfd020f6b4f622e7deb4c92104bda0aab0857e1e97dec23cc11368ccebf1c75c',1,'soft2d_core.h']]],
+  ['s2_5fshape_5ftype_5fellipse_23',['S2_SHAPE_TYPE_ELLIPSE',['../a00044.html#a0dfd020f6b4f622e7deb4c92104bda0aad3da952a1a0e041cc082008d73728f13',1,'soft2d_core.h']]],
+  ['s2_5fshape_5ftype_5fpolygon_24',['S2_SHAPE_TYPE_POLYGON',['../a00044.html#a0dfd020f6b4f622e7deb4c92104bda0aa5f67e18d07ae24555ee6fc521782b5c0',1,'soft2d_core.h']]]
+];
