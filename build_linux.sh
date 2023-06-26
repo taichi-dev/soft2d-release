@@ -44,7 +44,7 @@ if [ $? -eq 0 ]; then
     ./tests
   else # Run examples
     if [ "${EXAMPLE_NAME}" = "" ]; then
-        EXAMPLE_NAME="minimal"
+        EXAMPLE_NAME="body_minimal"
     fi
     echo "./${EXAMPLE_NAME}"
     ./${EXAMPLE_NAME}

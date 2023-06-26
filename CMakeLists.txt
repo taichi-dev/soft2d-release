@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(soft2d_examples)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Release)
 
@@ -13,15 +13,14 @@ find_package(Vulkan REQUIRED)
 set(TAICHI_C_API_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/taichi_c_api")
 
 if (${PLATFORM_NAME} STREQUAL "linux")
-    set(TAICHI_C_API_BINARY_DIR "${TAICHI_C_API_INSTALL_DIR}/lib/Linux/x86_64")
-    set(SOFT2D_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/lib/Linux/x86_64")
+    set(TAICHI_C_API_BINARY_DIR "${TAICHI_C_API_INSTALL_DIR}/bin/Linux/x86_64")
+    set(SOFT2D_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/bin/Linux/x86_64")
 else()
     set(TAICHI_C_API_BINARY_DIR "${TAICHI_C_API_INSTALL_DIR}/lib/Windows/x86_64_vc22")
     set(SOFT2D_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/lib/Windows/x86_64_vc22")
 endif()
 
 # Find built taichi C-API library in `TAICHI_C_API_INSTALL_DIR`.
-message("taichi c-api location: ${TAICHI_C_API_INSTALL_DIR}")
 find_library(taichi_c_api taichi_c_api HINTS
     ${TAICHI_C_API_BINARY_DIR}
     # CMake find root is overriden by Android toolchain.

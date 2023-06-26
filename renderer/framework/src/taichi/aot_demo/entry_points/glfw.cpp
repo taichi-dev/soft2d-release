@@ -3,7 +3,7 @@
 #include "taichi/aot_demo/framework.hpp"
 #include <chrono>
 #include <iostream>
-#include <unistd.h> // FIXME: find the another alternative of usleep()
+// #include <unistd.h> // FIXME: find the another alternative of usleep()
 
 static_assert(TI_AOT_DEMO_WITH_GLFW, "glfw must be provided");
 #include "GLFW/glfw3.h"
@@ -122,8 +122,9 @@ int main(int argc, const char **argv) {
     auto t = F.dt();
     auto wait_time = std::max(0.0, 1.0 / 60 - t);
 
-    // FIXME: maually give a fps limitation because vsync does not work on my
-    // laptop std::this_thread::sleep_for(std::chrono::seconds() * wait_time);
+    // FIXME: maually give a fps limitation because vsync does not work on some
+    // laptops.
+    // std::this_thread::sleep_for(std::chrono::seconds() * wait_time);
     // usleep(1000000 * wait_time);
   }
 

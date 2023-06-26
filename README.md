@@ -18,6 +18,7 @@ Support Linux and Windows. Vulkan is required. Tested on Ubuntu 20.04 and Window
 ``` bash
 git clone ...
 git lfs pull
+git submodule update --init --recursive
 ```
 ### Install Vulkan
 

@@ -1,5 +1,9 @@
 #include <soft2d/soft2d.h>
 
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
+
 S2WorldConfig default_world_config{
     .max_allowed_particle_num = 90000,
     .max_allowed_body_num = 10000,
