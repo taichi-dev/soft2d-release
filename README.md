@@ -26,27 +26,18 @@ git submodule update --init --recursive
 
 ### Linux
 
-#### Clean Build Directory
-``` bash
-./build_linux --clean
-```
-
-#### Minimal Test
-``` bash
-./build_linux --test
-```
-
-#### Examples
-``` bash
-./build_linux -e=<example_name> 
-# e.g. ./build_linux -e=basic_shapes
-```
-##### Building All Examples
-``` bash
-./build_linux
-```
-All output executables will be stored under the build/ directory.
-
+* Clean build directory: `./build_linux.sh --clean`
+* Minimal Test: `./build_linux.sh --test`
+* Build and run a specific example: `./build_linux.sh --example=<example_name>`
+    * For example: `./build_linux.sh --example=basic_shapes`
+* Build all examples: `./build_linux.sh`
+    * All output executables will be stored under the `build/` directory.
 
 ### Windows
+* Clean build directory: `.\build_windows.bat --clean`
+* Minimal Test: `.\build_windows.bat --test`
+* Build and run a specific example: `.\build_windows.bat --example=<example_name>`
+    * For example: `.\build_windows.bat --example=basic_shapes`
+* Build all examples: `.\build_windows.bat`
+    * All output executables will be stored under the `build/Release/` directory.
 

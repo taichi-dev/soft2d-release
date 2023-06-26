@@ -15,7 +15,7 @@ set(TAICHI_C_API_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/taichi_c_
 if (${PLATFORM_NAME} STREQUAL "linux")
     set(TAICHI_C_API_BINARY_DIR "${TAICHI_C_API_INSTALL_DIR}/bin/Linux/x86_64")
     set(SOFT2D_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/bin/Linux/x86_64")
-else()
+else() # Windows
     set(TAICHI_C_API_BINARY_DIR "${TAICHI_C_API_INSTALL_DIR}/lib/Windows/x86_64_vc22")
     set(SOFT2D_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/soft2d/lib/Windows/x86_64_vc22")
 endif()
