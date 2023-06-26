@@ -15,7 +15,7 @@ The ABI compatibility of soft2d binary files are listed as follows:
 ## User Examples
  ![A preview of user examples](./images/examples.png)
 
-We provide a collection of user examples demonstrating the capabilities of Soft2D. These examples can run on Linux and Windows with Vulkan installed. All examples are tested on Ubuntu 20.04 and Windows 10 with Visual Studio 2022. Follow the steps below to build and run these examples.
+We provide a collection of user examples demonstrating the capabilities of soft2d. These examples can run on Linux and Windows with Vulkan installed. All examples are tested on Ubuntu 20.04 and Windows 10 with Visual Studio 2022. Follow the steps below to build and run these examples.
 
 ### Cloning the Project
 
