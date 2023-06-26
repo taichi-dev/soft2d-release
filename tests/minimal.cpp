@@ -40,6 +40,6 @@ int main() {
     s2_step(world, time_step);
   }
 
-  std::cout << "Hello, world!" << std::endl;
+  std::cout << "Soft2D runs successfully!" << std::endl;
   return 0;
 }

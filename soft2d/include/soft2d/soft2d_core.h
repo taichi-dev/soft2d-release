@@ -12,7 +12,7 @@
 #pragma once
 
 #ifndef S2_VERSION
-#define S2_VERSION 1000002
+#define S2_VERSION 2000
 #endif // S2_VERSION
 
 #include <soft2d/soft2d.h>
@@ -56,26 +56,26 @@ typedef uint32_t S2Flags;
 
 /// Handle `S2World`
 ///
-/// [TODO] A world is a container including all objects related to simulation.
+/// A world is a container that contains all simulation-related objects within a
+/// scene and simulates them over time under physical laws.
 typedef struct S2World_t *S2World;
 
 /// Handle `S2Body`
 ///
-/// [TODO] A body is a continuum. A body could contain a group of particles or
-/// could be a mesh. A body has attributes like `center`, `mobility`, `material`
-/// etc. Each body's ownership is exclusive to one world.
+/// A body is a continuum to be simulated, which is composed of a group of
+/// particles. A body has properties such as `center`, `mobility`, `material`,
+/// etc.
 typedef struct S2Body_t *S2Body;
 
 /// Handle `S2Collider`
 ///
-/// [TODO] A Collider is an obstacle within the world, blocking the motion of
-/// bodies.
+/// A collider is an obstacle within the world that blocks the motion of bodies.
 typedef struct S2Collider_t *S2Collider;
 
 /// Handle `S2Trigger`
 ///
-/// [TODO] A Trigger is a perceptive area, enabling users to detect and
-/// manipulate particles passing through it. See `S2ParticleCallBack` example.
+/// A trigger is a spatial area with a specific shape, which is able to detect
+/// particles passing through it.
 typedef struct S2Trigger_t *S2Trigger;
 
 /// Structure `S2Vec2`
@@ -285,20 +285,7 @@ typedef struct S2Particle {
 
 /// Enumeration `S2OutWorldBoundaryPolicy`
 ///
-/// This policy specifies the behavior of a body when it leaves the world. We
-/// use Axis-Aligned Bounding Boxes (AABB) to check if a body leaves the world
-/// (The AABB of a body is the minimal axis-aligned box covering all its
-/// particles). When the condition
-/// ```
-/// AABB(body).low_corner.x < world.offset.x ||
-/// AABB(body).high_corner.x > world.offset.x + world.extent.x ||
-/// AABB(body).low_corner.y < world.offset.y ||
-/// AABB(body).high_corner.y > world.offset.y + world.extent.y
-/// ```
-/// satisfies, we treat this body as it leaves the world.
-///
-/// Or a more intuitive way: we treat a body out of the world if any of its
-/// particles move out of the scope of the world.
+/// This policy specifies the behavior of a body when it leaves the world.
 typedef enum S2OutWorldBoundaryPolicy {
   /// The body will still exist in the world, but it will be deactivated. This
   /// body won't move or interact with other objects anymore.
@@ -369,9 +356,7 @@ typedef struct S2WorldConfig {
   S2Vec2 extent;
   /// The time step of the internal sub-step. A call of `s2_step()` function is
   /// divided into several sub-step iterations in the internal implementation.
-  /// The number of iterations could be calculated as `ceil(dt/substep_dt)`. A
-  /// detailed explanation of sub-steps is available in []. A commonly choose of
-  /// this value is 1e-4 (second).
+  /// The number of iterations could be calculated as `ceil(dt/substep_dt)`.
   float substep_dt;
   /// World's gravity acceleration. A commonly used value is `(0, -9.8)` (meters
   /// per second squared).
@@ -389,11 +374,9 @@ typedef struct S2WorldConfig {
   uint32_t enable_world_query;
   /// A scale factor of mesh body's internal force.
   float mesh_body_force_scale;
-  /// A parameter to prevent particles from penetrating colliders. Detailed
-  /// descriptions of this parameter could be found in [].
+  /// A parameter to prevent particles from penetrating colliders.
   float collision_penalty_force_scale_along_normal_dir;
-  /// A parameter to prevent particles from penetrating colliders. Detailed
-  /// descriptions of this parameter could be found in [].
+  /// A parameter to prevent particles from penetrating colliders.
   float collision_penalty_force_scale_along_velocity_dir;
   /// A scale factor of fine grid resolution compared to background grid
   /// resolution. This parameter adjusts the precision of colliders when the
@@ -430,8 +413,10 @@ typedef void (*S2ParticleManipulationCallback)(
 /// |particle_id            |int    |1  |P           |P*sizeof(int)           |
 /// |fine_grid_collider_num |int    |2  |(FG.x, FG.y)|FG.x*FG.y*sizeof(int)   |
 /// |fine_grid_trigger_id   |int    |2  |(FG.x, FG.y)|FG.x*FG.y*sizeof(int)   |
+/// |element_indices        |int    |1  |E           |E*3*sizeof(int)         |
 ///
 /// * P: Number of particles.
+/// * E: Number of triangle elements.
 /// * (FG.x, FG.y): Resolution of the fine grid.
 typedef enum S2BufferName {
   /// This buffer only stores a single float value, indicating the current
@@ -454,6 +439,8 @@ typedef enum S2BufferName {
   /// ID of the most recently added trigger is stored.  This buffer can be
   /// exported only if `S2WorldConfig.enable_debugging` is true.
   S2_BUFFER_NAME_FINE_GRID_TRIGGER_ID = 6,
+  /// Stores all indices of particles of all triangle elements. Note this index
+  /// means the particle's index in the particle buffer, instead of their ID.
   S2_BUFFER_NAME_ELEMENT_INDICES = 7,
   S2_BUFFER_NAME_MAX_ENUM = 0xffffffff,
 } S2BufferName;
@@ -583,7 +570,7 @@ S2_API void S2_API_CALL s2_destroy_trigger(
 
 /// Function `s2_step`
 ///
-/// Advance a world simulation by a real-world time step.
+/// Advance a world's simulation by a real-world time step.
 S2_API void S2_API_CALL s2_step(
     /// The world to be simulated.
     S2World world,
@@ -683,11 +670,24 @@ S2_API void S2_API_CALL s2_get_buffer(
     TiNdArray *buffer);
 
 /// Function `s2_export_buffer_to_texture`
-S2_API void S2_API_CALL s2_export_buffer_to_texture(S2World world,
-                                                    S2BufferName buffer_name,
-                                                    S2Bool y_flipped,
-                                                    float scale,
-                                                    const TiTexture *texture);
+///
+/// Export buffer data to a user-specified texture, useful for rendering or
+/// debugging. Currently, this function only support
+/// #S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM and
+/// #S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM.
+S2_API void S2_API_CALL s2_export_buffer_to_texture(
+    /// World handle.
+    S2World world,
+    /// The buffer name to export. Currently, this arguments only supports
+    /// #S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM or
+    /// #S2_BUFFER_NAME_FINE_GRID_COLLIDER_NUM.
+    S2BufferName buffer_name,
+    /// A option to control whether flip the coordinates of the y-axis or not.
+    S2Bool y_flipped,
+    /// A factor to scale the numerical data to be exported.
+    float scale,
+    /// The destination texture for exporting.
+    const TiTexture *texture);
 
 /// Function `s2_apply_linear_impulse`
 ///

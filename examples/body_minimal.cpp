@@ -3,6 +3,7 @@
 #include <taichi/taichi.h>
 #include <soft2d/soft2d.h>
 #include "common.h"
+#include "globals.h"
 #include "taichi/aot_demo/framework.hpp"
 // clang-format on
 
@@ -13,7 +14,7 @@ constexpr int win_width = 800;
 constexpr int win_height = 800;
 constexpr float win_fov = 1.0 * win_width / win_height;
 
-struct Minimal : public App {
+struct BodyMinimal : public App {
 
   S2World world;
 
@@ -33,42 +34,7 @@ struct Minimal : public App {
     GraphicsRuntime &runtime = F.runtime();
 
     // Soft2D initialization begins
-    // Create a world with specifed parameters
-    S2WorldConfig config{};
-    config.max_allowed_particle_num = 90000;
-    config.max_allowed_body_num = 10000;
-    config.max_allowed_element_num = 10000;
-    config.max_allowed_trigger_num = 10000;
-    config.grid_resolution = 128;
-    // Remove the body if it is out of the world boundary
-    config.out_world_boundary_policy =
-        S2OutWorldBoundaryPolicy::S2_OUT_WORLD_BOUNDARY_POLICY_REMOVING;
-    {
-      S2Vec2 offset;
-      offset.x = 0.0f;
-      offset.y = 0.0f;
-      config.offset = offset;
-    }
-    {
-      S2Vec2 extent;
-      extent.x = 1.0f;
-      extent.y = 1.0f;
-      config.extent = extent;
-      config.substep_dt = 1e-4f;
-    }
-    {
-      S2Vec2 gravity;
-      gravity.x = 0.0f;
-      gravity.y = -9.8f;
-      config.gravity = gravity;
-    }
-    config.enable_debugging = false;
-    config.enable_world_query = false;
-    config.mesh_body_force_scale = 1e-6f;
-    config.collision_penalty_force_scale_along_normal_dir = 0.1f;
-    config.collision_penalty_force_scale_along_velocity_dir = 0.1f;
-    config.fine_grid_scale = 4;
-
+    S2WorldConfig config = default_world_config;
     world = s2_create_world(TiArch::TI_ARCH_VULKAN, runtime, &config);
 
     // Create a body with a box shape
@@ -96,7 +62,7 @@ struct Minimal : public App {
     kinematics.center = center;
     kinematics.mobility = S2Mobility::S2_MOBILITY_DYNAMIC;
 
-    s2_create_body(world, &material, &kinematics, &shape, 0);
+    s2_create_body(world, &material, &kinematics, &shape, /* tag = */ 0);
     // Soft2D initialization ends
 
     // Renderer initialization begins
@@ -136,4 +102,6 @@ struct Minimal : public App {
   }
 };
 
-std::unique_ptr<App> create_app() { return std::unique_ptr<App>(new Minimal); }
+std::unique_ptr<App> create_app() {
+  return std::unique_ptr<App>(new BodyMinimal);
+}
