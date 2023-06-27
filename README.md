@@ -1,10 +1,10 @@
 # soft2d-release
-This is soft2d's official repository for the latest releases, user examples and documentation. The user documentation is hosted [here](https://docs.soft2d.tech/).
+This is soft2d's official repository for the latest releases, user examples, and documentation. The user documentation is hosted [here](https://docs.soft2d.tech/).
 
 ## Introduction
-Soft2D is a 2D multi-material continuum physics engine designed for real-time applications. With soft2d, users can simulate various deformable objects, such as fluids, sand, snow, and elastic bodies within their applications.
+Soft2D is a 2D multi-material continuum physics engine designed for real-time applications. With soft2d, users can simulate various materials such as fluids, sand, snow, and elastic bodies within their applications.
 
-Soft2D is distributed as shared library binary files and header files. These files are under the `soft2d/` directory. Additionally, soft2d relies on [Taichi C-API](https://docs.taichi-lang.org/docs/taichi_core) library. The taichi c-api library is located at `dependencies/taichi_c_api/`, which has the same directory structure as `soft2d/`.
+Soft2D is distributed as shared library binary files and header files. These files are under the `soft2d/` directory. Additionally, soft2d relies on the [Taichi C-API](https://docs.taichi-lang.org/docs/taichi_core) library. The Taichi C-API library is located at `dependencies/taichi_c_api/`, which has the same directory structure as `soft2d/`.
 
 ### Binary Compatibility
 Here we list the ABI compatibility of soft2d binary files:
