@@ -1,4 +1,4 @@
-# Soft2D
+# soft2d-release
 This is soft2d's official repository for the latest releases, user examples and documentation. The user documentation is hosted at [here](https://docs.soft2d.tech/).
 
 ## Introduction
