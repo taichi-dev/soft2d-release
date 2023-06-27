@@ -1,5 +1,5 @@
 # soft2d-release
-This is soft2d's official repository for the latest releases, user examples and documentation. The user documentation is hosted at [here](https://docs.soft2d.tech/).
+This is soft2d's official repository for the latest releases, user examples and documentation. The user documentation is hosted [here](https://docs.soft2d.tech/).
 
 ## Introduction
 Soft2D is a 2D multi-material continuum physics engine designed for real-time applications. With soft2d, users can simulate various deformable objects, such as fluids, sand, snow, and elastic bodies within their applications.
@@ -41,7 +41,7 @@ Linux and Windows users can use the following commands to build and run the exam
 * Clean the build directory: `./build_linux.sh --clean`
 * Run the minimal test (No GUI): `./build_linux.sh --test`
 * Run a specific example: `./build_linux.sh --example=<example_name>`
-    * For instance: To run `examples/basic_shapes.cpp`, please use the command `./build_linux.sh --example=basic_shapes`
+    * For instance, to run `examples/basic_shapes.cpp`, please use the command `./build_linux.sh --example=basic_shapes`
 * Build all examples: `./build_linux.sh`
     * All output executables will be stored under the `build/` directory.
 
@@ -49,7 +49,7 @@ Linux and Windows users can use the following commands to build and run the exam
 * Clean the build directory: `.\build_windows.bat --clean`
 * Run the minimal test (No GUI): `.\build_windows.bat --test`
 * Run a specific example: `.\build_windows.bat --example=<example_name>`
-    * For instance: To run `examples/basic_shapes.cpp`, please use the command `.\build_windows.bat --example=basic_shapes`
+    * For instance, to run `examples/basic_shapes.cpp`, please use the command `.\build_windows.bat --example=basic_shapes`
 * Build all examples: `.\build_windows.bat`
     * All output executables will be stored under the `build/Release/` directory.
 
