@@ -205,7 +205,7 @@ Material</h1>
 <p>When creating a body, it is necessary to specify a physical material. This defines the object's physical characteristics. <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/materials.cpp">Materials Example</a> demonstrates the behavior of different materials.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>
 Material Types</h2>
-<p>Currently, Soft2D supports four types of materials: fluid, elastic body, snow and sand.</p>
+<p>Currently, soft2d supports four types of materials: fluid, elastic body, snow and sand.</p>
 <h2><a class="anchor" id="autotoc_md19"></a>
 Constitutive Models</h2>
 <p>Soft2D is based on the continuum mechanics theory. The constitutive model used in soft2d is the fixed corotated model, which requires Young's modulus and Poisson's ratio as inputs.</p>
@@ -304,7 +304,7 @@ Exporting Data</h1>
 <p>Soft2D offers several methods to export internal data.</p>
 <ul>
 <li><p class="startli">Exporting buffers on the device (GPU) side.</p>
-<p class="startli">Soft2D allows access to its internal buffers via their names. All available buffer names can be found in <a class="el" href="a00044.html#a70de43c8220de6b588a999bf39269531">S2BufferName</a>. The handle of these buffers can be retrieved by <a class="el" href="a00044.html#af04e11ebe4126bf7990658cf8c9fd726">s2_get_buffer()</a> function. One can use utility functions such as <code>ti_copy_memory_device_to_device()</code> (provided by taichi C-API) to copy the buffer data into their own GPU buffer. Soft2D also provides a <a class="el" href="a00044.html#a0502af83b010012c392ca106893b2c33">s2_export_buffer_to_texture()</a> function. This function copies the data into a user-specified <code>TiTexture</code>. An example of exporting a buffer to a texture can be found at <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/debugging.cpp">Debugging Example</a>.</p>
+<p class="startli">Soft2D allows access to its internal buffers via their names. All available buffer names can be found in <a class="el" href="a00044.html#a70de43c8220de6b588a999bf39269531">S2BufferName</a>. The handle of these buffers can be retrieved by <a class="el" href="a00044.html#af04e11ebe4126bf7990658cf8c9fd726">s2_get_buffer()</a> function. One can use utility functions such as <code>ti_copy_memory_device_to_device()</code> (provided by taichi c-api) to copy the buffer data into their own GPU buffer. Soft2D also provides a <a class="el" href="a00044.html#a0502af83b010012c392ca106893b2c33">s2_export_buffer_to_texture()</a> function. This function copies the data into a user-specified <code>TiTexture</code>. An example of exporting a buffer to a texture can be found at <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/debugging.cpp">Debugging Example</a>.</p>
 </li>
 </ul>
 <blockquote class="doxtable">
