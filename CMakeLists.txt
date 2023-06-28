@@ -8,6 +8,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 set(LIB_NAME soft2d_examples)
 
+message(STATUS "Check VULKAN_SDK environment variable: $ENV{VULKAN_SDK}")
 find_package(Vulkan REQUIRED)
 
 set(TAICHI_C_API_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/taichi_c_api")
