@@ -30,7 +30,7 @@ git lfs pull
 git submodule update --init --recursive
 ```
 ### Vulkan Installation
-Please install Vulkan from [Vulkan Official Website](https://www.vulkan.org/), and make sure Vulkan-related environment variables are properly configured.
+Please install Vulkan SDK from [vukan-sdk website](https://www.lunarg.com/vulkan-sdk/), and make sure Vulkan-related environment variables (`VULKAN_SDK`) are properly configured.
 
 ### Running the Examples
 
