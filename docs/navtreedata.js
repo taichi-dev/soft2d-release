@@ -40,50 +40,52 @@ var NAVTREE =
         [ "World Configuration", "a00112.html#autotoc_md14", null ]
       ] ],
       [ "Shape", "a00112.html#autotoc_md15", null ],
-      [ "Kinematics", "a00112.html#autotoc_md16", null ],
-      [ "Material", "a00112.html#autotoc_md17", [
-        [ "Material Types", "a00112.html#autotoc_md18", null ],
-        [ "Constitutive Models", "a00112.html#autotoc_md19", null ],
-        [ "Young's modulus", "a00112.html#autotoc_md20", null ],
-        [ "Poisson's ratio", "a00112.html#autotoc_md21", null ]
+      [ "Kinematics", "a00112.html#autotoc_md16", [
+        [ "Mobility", "a00112.html#autotoc_md17", null ]
       ] ],
-      [ "Particle", "a00112.html#autotoc_md22", [
-        [ "Particle Tag", "a00112.html#autotoc_md23", null ],
-        [ "Particle ID", "a00112.html#autotoc_md24", null ]
+      [ "Material", "a00112.html#autotoc_md18", [
+        [ "Material Types", "a00112.html#autotoc_md19", null ],
+        [ "Constitutive Models", "a00112.html#autotoc_md20", null ],
+        [ "Young's modulus", "a00112.html#autotoc_md21", null ],
+        [ "Poisson's ratio", "a00112.html#autotoc_md22", null ]
       ] ],
-      [ "Body", "a00112.html#autotoc_md25", [
-        [ "Particle Sampling", "a00112.html#autotoc_md26", null ],
-        [ "MeshBody", "a00112.html#autotoc_md27", null ]
+      [ "Particle", "a00112.html#autotoc_md23", [
+        [ "Particle Tag", "a00112.html#autotoc_md24", null ],
+        [ "Particle ID", "a00112.html#autotoc_md25", null ]
       ] ],
-      [ "Collider", "a00112.html#autotoc_md28", [
-        [ "Collision Handling", "a00112.html#autotoc_md29", null ],
-        [ "Fine Grid", "a00112.html#autotoc_md30", null ],
-        [ "Collision Parameters", "a00112.html#autotoc_md31", null ]
+      [ "Body", "a00112.html#autotoc_md26", [
+        [ "Particle Sampling", "a00112.html#autotoc_md27", null ],
+        [ "MeshBody", "a00112.html#autotoc_md28", null ]
       ] ],
-      [ "Trigger", "a00112.html#autotoc_md32", [
-        [ "World Querying (Trigger Events)", "a00112.html#autotoc_md33", null ],
-        [ "Particle Callback Functions", "a00112.html#autotoc_md34", null ]
+      [ "Collider", "a00112.html#autotoc_md29", [
+        [ "Collision Handling", "a00112.html#autotoc_md30", null ],
+        [ "Fine Grid", "a00112.html#autotoc_md31", null ],
+        [ "Collision Parameters", "a00112.html#autotoc_md32", null ]
       ] ],
-      [ "Exporting Data", "a00112.html#autotoc_md35", null ],
-      [ "Engine Architecture", "a00112.html#autotoc_md36", [
-        [ "Simulation Flow", "a00112.html#autotoc_md37", null ],
-        [ "Data Flow", "a00112.html#autotoc_md38", null ],
-        [ "Multithreading", "a00112.html#autotoc_md39", null ],
-        [ "Data Hierarchy", "a00112.html#autotoc_md40", null ]
+      [ "Trigger", "a00112.html#autotoc_md33", [
+        [ "World Querying (Trigger Events)", "a00112.html#autotoc_md34", null ],
+        [ "Particle Callback Functions", "a00112.html#autotoc_md35", null ]
       ] ],
-      [ "Algorithm Overview", "a00112.html#autotoc_md41", [
-        [ "Updated Lagrangian Method", "a00112.html#autotoc_md42", [
-          [ "Background Grid", "a00112.html#autotoc_md43", null ],
-          [ "Fine Grid", "a00112.html#autotoc_md44", null ],
-          [ "OutWorldBoundaryPolicy", "a00112.html#autotoc_md45", null ]
+      [ "Exporting Data", "a00112.html#autotoc_md36", null ],
+      [ "Engine Architecture", "a00112.html#autotoc_md37", [
+        [ "Simulation Flow", "a00112.html#autotoc_md38", null ],
+        [ "Data Flow", "a00112.html#autotoc_md39", null ],
+        [ "Multithreading", "a00112.html#autotoc_md40", null ],
+        [ "Data Hierarchy", "a00112.html#autotoc_md41", null ]
+      ] ],
+      [ "Algorithm Overview", "a00112.html#autotoc_md42", [
+        [ "Updated Lagrangian Method", "a00112.html#autotoc_md43", [
+          [ "Background Grid", "a00112.html#autotoc_md44", null ],
+          [ "Fine Grid", "a00112.html#autotoc_md45", null ],
+          [ "OutWorldBoundaryPolicy", "a00112.html#autotoc_md46", null ]
         ] ],
-        [ "Simulating a Large World", "a00112.html#autotoc_md46", [
-          [ "World Offset", "a00112.html#autotoc_md47", null ],
-          [ "World Extent", "a00112.html#autotoc_md48", null ]
+        [ "Simulating a Large World", "a00112.html#autotoc_md47", [
+          [ "World Offset", "a00112.html#autotoc_md48", null ],
+          [ "World Extent", "a00112.html#autotoc_md49", null ]
         ] ],
-        [ "Time Integration", "a00112.html#autotoc_md49", null ]
+        [ "Time Integration", "a00112.html#autotoc_md50", null ]
       ] ],
-      [ "FAQ", "a00112.html#autotoc_md50", null ]
+      [ "FAQ", "a00112.html#autotoc_md51", null ]
     ] ],
     [ "API Reference", "a00113.html", null ],
     [ "Classes", "annotated.html", [

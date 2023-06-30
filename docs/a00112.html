@@ -200,62 +200,80 @@ Different shapes.</div></div>
     <h1><a class="anchor" id="autotoc_md16"></a>
 Kinematics</h1>
 <p>Kinematics defines the motion state of a body, collider, or trigger. It includes properties like <code>center</code> and <code>linear_velocity</code>. Refer to <a class="el" href="a00071.html">S2Kinematics</a> for details.</p>
-<h1><a class="anchor" id="autotoc_md17"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
+Mobility</h2>
+<p>The mobility of an object (<a class="el" href="a00044.html#a6af715f0fa7575d381ea52c539048113">S2Body</a>, <a class="el" href="a00044.html#a7ff2fae1181bfccbf07a7cd0c688cf12">S2Collider</a>, or <a class="el" href="a00044.html#a005991bd6c100d9973d3d4ef88d040e8">S2Trigger</a>) could be <code>static</code>, <code>kinematic</code> or <code>dynamic</code>. See <a class="el" href="a00044.html#af6e9bdd26188eaaa781fbd2e08455788">S2Mobility</a> for more details.</p>
+<p>Currently, objects have different available mobilities in soft2d:</p><ul>
+<li>Bodies currently support <code>static</code> and <code>dynamic</code> mobilities.</li>
+<li>Colliders currently support <code>static</code> and <code>kinematic</code> mobilities.</li>
+<li>Triggers only support <code>static</code> mobility.</li>
+</ul>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Object   </th><th class="markdownTableHeadNone">Static   </th><th class="markdownTableHeadNone">Kinematic   </th><th class="markdownTableHeadNone">Dynamic    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Body   </td><td class="markdownTableBodyNone">Y   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">Y    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Collider   </td><td class="markdownTableBodyNone">Y   </td><td class="markdownTableBodyNone">Y   </td><td class="markdownTableBodyNone"></td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Trigger   </td><td class="markdownTableBodyNone">Y   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"></td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md18"></a>
 Material</h1>
 <p>When creating a body, it is necessary to specify a physical material. This defines the object's physical characteristics. <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/materials.cpp">Materials Example</a> demonstrates the behavior of different materials.</p>
-<h2><a class="anchor" id="autotoc_md18"></a>
+<h2><a class="anchor" id="autotoc_md19"></a>
 Material Types</h2>
 <p>Currently, soft2d supports four types of materials: fluid, elastic body, snow and sand.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Constitutive Models</h2>
 <p>Soft2D is based on the continuum mechanics theory. The constitutive model used in soft2d is the fixed corotated model, which requires Young's modulus and Poisson's ratio as inputs.</p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md21"></a>
 Young's modulus</h2>
 <p>Young's modulus describes the "stiffness" of a material. A detailed explanation can be found at <a href="https://en.wikipedia.org/wiki/Young%27s_modulus">Wiki - Young's modulus</a>. In soft2d, we use "MPa" as the default unit for Young's modulus parameters.</p>
 <blockquote class="doxtable">
 <p>&zwj;Fluids technically do not have Young's modulus. In soft2d, it's used to indicate fluid's degree of incompressibility. </p>
 </blockquote>
-<h2><a class="anchor" id="autotoc_md21"></a>
+<h2><a class="anchor" id="autotoc_md22"></a>
 Poisson's ratio</h2>
 <p>Poisson's ratio describes how a material stretches perpendicularly when compressed in a specific direction. More details are available in <a href="https://en.wikipedia.org/wiki/Poisson%27s_ratio">Wiki - Poisson's ratio</a>.</p>
-<h1><a class="anchor" id="autotoc_md22"></a>
+<h1><a class="anchor" id="autotoc_md23"></a>
 Particle</h1>
 <p>A body is composed of a group of particles. Every particle has its own properties, such as position, velocity and tag, etc. These data can be accessed via a particle callback function (See <a class="el" href="a00112.html#particle-callback-functions">Particle Callback Functions</a>).</p>
-<h2><a class="anchor" id="autotoc_md23"></a>
+<h2><a class="anchor" id="autotoc_md24"></a>
 Particle Tag</h2>
 <p>Every particle has a user-specified tag, which is useful for logic (See <a class="el" href="a00112.html#world-querying-trigger-events">Trigger Events</a>) or rendering. When creating a body, users are required to specify a tag which is then assigned to all particles in that body. The tag of each particle can be later modified in a particle callback function (See <a class="el" href="a00112.html#particle-callback-functions">Particle Callback Functions</a>) during the simulation.</p>
-<h2><a class="anchor" id="autotoc_md24"></a>
+<h2><a class="anchor" id="autotoc_md25"></a>
 Particle ID</h2>
 <p>Upon creation, each particle is automatically assigned a unique, persistent ID. The memory location of a particle in the GPU buffer might change during the simulation. For example, when some particles are removed, left particles in the buffer will be reordered. As a result, one should use a particle's ID to distinguish it from other particles.</p>
 <p><a class="anchor" id="Body"></a></p>
-<h1><a class="anchor" id="autotoc_md25"></a>
+<h1><a class="anchor" id="autotoc_md26"></a>
 Body</h1>
 <p>A body is a continuum to be simulated, which is composed of a group of particles. A body has properties such as <code>shape</code>, <code>center</code>, <code>material</code>, etc. When the shape of a body is specified, particles will automatically sampled within its area.</p>
 <p>There are two kinds of special bodies: CustomBody and MeshBody. They provide more flexibility for users. CustomBody allows users to custom sample particles to form a body. MeshBody enables users to construct a body from a 2D mesh.</p>
 <blockquote class="doxtable">
 <p>&zwj;The ownership of a body belongs to the world. </p>
 </blockquote>
-<h2><a class="anchor" id="autotoc_md26"></a>
+<h2><a class="anchor" id="autotoc_md27"></a>
 Particle Sampling</h2>
 <p>When the shape of a body is specified, soft2d automatically samples particles to "fill" that shape. A Poisson's sampling method is employed in this process. The sampled particles' density is decided heuristically and automatically.</p>
 <blockquote class="doxtable">
 <p>&zwj;In a large world, it might not have the enough accuracy to represent a relatively small body. An example of such an occasion is shown in <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/world_extent.cpp">World Extent Example</a>. </p>
 </blockquote>
 <p><a class="anchor" id="meshbody"></a></p>
-<h2><a class="anchor" id="autotoc_md27"></a>
+<h2><a class="anchor" id="autotoc_md28"></a>
 MeshBody</h2>
 <p>Mesh body is a special type of body. Particles in a mesh body are connected by edges. Edges are like constraints, which "drag" particles. In a mesh body, only particles interact with other bodies, while edges do not. The simulation pipeline of the mesh body is a little bit different from the body, one can adjust the magnitude of the mesh body's internal force by <a class="el" href="a00111.html#af1598a96b4f3ba383c1226b1aa0d285f" title="A scale factor of mesh body&#39;s internal force.">S2WorldConfig.mesh_body_force_scale</a>.</p>
 <p><a class="anchor" id="Collider"></a></p>
-<h1><a class="anchor" id="autotoc_md28"></a>
+<h1><a class="anchor" id="autotoc_md29"></a>
 Collider</h1>
 <p>A collider is an obstacle within the world that blocks the motion of bodies.</p>
 <p><a class="anchor" id="collision-handling"></a></p>
-<h2><a class="anchor" id="autotoc_md29"></a>
+<h2><a class="anchor" id="autotoc_md30"></a>
 Collision Handling</h2>
 <p>During the simulation, particles might penetrate into colliders. To avoid this, in soft2d, collision handling is performed after every sub-step. Soft2D uses the penalty method to prevent particle-collider penetration. One can adjust the magnitude of the penalty force via <a class="el" href="a00111.html#a6bebe2f2a7906c6f7b28cf42bccd2356" title="A parameter to prevent particles from penetrating colliders.">S2WorldConfig.collision_penalty_force_scale_along_normal_dir</a> and <a class="el" href="a00111.html#a392e877e3c345a0136e664d0fb7a4e9d" title="A parameter to prevent particles from penetrating colliders.">S2WorldConfig.collision_penalty_force_scale_along_velocity_dir</a>.</p>
 <p>Another occasion when penetration might happen is when colliders overlap particles while using <a class="el" href="a00044.html#aef357c1f6974dd48f534077906615ebc">s2_set_collider_position()</a>. In such occasions, particles can be stuck into the colliders. Users should try to avoid this happening.</p>
 <p><a class="anchor" id="fine-grid"></a></p>
-<h2><a class="anchor" id="autotoc_md30"></a>
+<h2><a class="anchor" id="autotoc_md31"></a>
 Fine Grid</h2>
 <p>All colliders are rasterized into a background grid during the simulation. A coarse grid may lead to inaccurate collision handling. To solve this problem, soft2d employs a fine grid alongside the standard background grid to store the discretized colliders (and triggers). The resolution of the fine grid is the product of <a class="el" href="a00111.html#a6dee35c46886b6230c959d037dee53b6">S2WorldConfig.fine_grid_scale</a> and the resolution of the standard background grid (<a class="el" href="a00111.html#a5a94bf765f39180edbfb99878d82f575" title="The resolution of the world&#39;s background grid.">S2WorldConfig.grid_resolution</a>). See <a class="el" href="a00112.html#background-grid">Background Grid</a> for more details.</p>
 <p>The figure below demonstrates an intuitive comparison of discretized colliders on grids with different resolutions (<code>grid_resolution</code>=128, <code>fine_grid_scale</code>=1, 2, 4, respectively).</p>
@@ -263,7 +281,7 @@ Fine Grid</h2>
 <img src="colliders.png" alt=""/>
 <div class="caption">
 Discretized colliders on 128x128, 256x256, 512x512 resolution grids</div></div>
-    <h2><a class="anchor" id="autotoc_md31"></a>
+    <h2><a class="anchor" id="autotoc_md32"></a>
 Collision Parameters</h2>
 <p>Users are able to control collision behaviors by specifying a set of collision parameters (<a class="el" href="a00107.html">S2CollisionParameter</a>) when creating a collider. These include collision type, friction coefficient and restitution coefficient. The following animations show the effects of different collision parameters.</p>
 <div class="image">
@@ -275,14 +293,14 @@ Different collision types: STICKY, SLIP and SEPARATE</div></div>
 <div class="caption">
 Friction and restitution: From left to right: restitution_coeff is 0, 0.05, 0.1, 0.15, 0.2; From top to bottom: friction_coeff is 0, 0.25, 0.5, 0.75, 1.0</div></div>
     <p><a class="anchor" id="Trigger"></a></p>
-<h1><a class="anchor" id="autotoc_md32"></a>
+<h1><a class="anchor" id="autotoc_md33"></a>
 Trigger</h1>
 <p>A trigger is a spatial area with a specific shape, which is able to detect particles passing through it. Like colliders, triggers are also stored on the fine grid.</p>
 <blockquote class="doxtable">
 <p>&zwj;<a class="el" href="a00111.html#aaf3b8342b4ce5c1170954f7af8a2b4e0">S2WorldConfig.enable_world_query</a> must be enabled when using triggers. </p>
 </blockquote>
 <p><a class="anchor" id="world-querying-trigger-events"></a></p>
-<h2><a class="anchor" id="autotoc_md33"></a>
+<h2><a class="anchor" id="autotoc_md34"></a>
 World Querying (Trigger Events)</h2>
 <p>Currently, world querying can be performed by trigger events.</p>
 <p>Trigger events support several operations:</p><ul>
@@ -292,14 +310,14 @@ World Querying (Trigger Events)</h2>
 </ul>
 <p>All the above operations support filtering particles with a specific tag. Such functions have a <code>by_tag</code> suffix.</p>
 <p><a class="anchor" id="particle-callback-functions"></a></p>
-<h2><a class="anchor" id="autotoc_md34"></a>
+<h2><a class="anchor" id="autotoc_md35"></a>
 Particle Callback Functions</h2>
 <p>A trigger allows users to provide a user-defined callback function to access or manipulate particle data. Utilizing particle callback, one can retrieve particle data, such as position, velocity, etc., on the host side. Moreover, users can execute two kinds of manipulations in the callback:</p><ul>
 <li>Modify each particle's tag.</li>
 <li>Mark each particle should be removed or not.</li>
 </ul>
 <p>An example of particle callback can be found at <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/trigger_callback.cpp">Trigger Callback Example</a>.</p>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 Exporting Data</h1>
 <p>Soft2D offers several methods to export internal data.</p>
 <ul>
@@ -315,10 +333,10 @@ Exporting Data</h1>
 <p class="startli">Particle callback functions provide a way to access particle data in a trigger. Using a particle callback, one can store particle data in the host memory. See <a class="el" href="a00112.html#particle-callback-functions">Particle Callback Functions</a> section for more details.</p>
 </li>
 </ul>
-<h1><a class="anchor" id="autotoc_md36"></a>
+<h1><a class="anchor" id="autotoc_md37"></a>
 Engine Architecture</h1>
 <p>This section introduces the simulation framework of soft2d physics engine.</p>
-<h2><a class="anchor" id="autotoc_md37"></a>
+<h2><a class="anchor" id="autotoc_md38"></a>
 Simulation Flow</h2>
 <p>The fundamental logical flow of soft2d can be visualized with the following flow chart.</p>
 <div class="fragment"><div class="line">    +--------------------------+</div>
@@ -384,13 +402,13 @@ Simulation Flow</h2>
 <li>Post-Step phase: At this phase, soft2d firstly checks if <a class="el" href="a00111.html#aaf3b8342b4ce5c1170954f7af8a2b4e0">S2WorldConfig.enable_world_query</a> is enabled. If so, particle data will be fetched back from GPU.</li>
 </ul>
 <p><a class="anchor" id="data-flow"></a></p>
-<h2><a class="anchor" id="autotoc_md38"></a>
+<h2><a class="anchor" id="autotoc_md39"></a>
 Data Flow</h2>
 <p>In soft2d, all simulation-related data is stored on the device (GPU) memory. Data retrieval from GPU to CPU takes place at the post-step stage. If <a class="el" href="a00111.html#aaf3b8342b4ce5c1170954f7af8a2b4e0">S2WorldConfig.enable_world_query</a> is enabled, particle data will be read back from GPU to CPU. Then, trigger events and user-defined callbacks will be performed on the host particle data. Any user modifications to the particle data will be sent to GPU again.</p>
 <blockquote class="doxtable">
 <p>&zwj;The detection of particles located in a trigger is performed on the host side. </p>
 </blockquote>
-<h2><a class="anchor" id="autotoc_md39"></a>
+<h2><a class="anchor" id="autotoc_md40"></a>
 Multithreading</h2>
 <p>Real-time applications often run with multiple threads. For instance, most mainstream game engines utilize a logic (game) thread and a rendering thread. The rendering thread is responsible for creating the graphics runtime and drawing the scene. To ensure thread safety within such an environment, users should initialize soft2d on the rendering thread using the game engine's graphics runtime. User operations involving GPU dispatching should also be executed on the rendering thread. To manage multi-threading issues, soft2d queues all user operations, such as object addition or removal, into the <a class="el" href="a00044.html#a2938bafe052360874e67c077083c19b8">s2_step()</a> function. As a result, user need run the <a class="el" href="a00044.html#a2938bafe052360874e67c077083c19b8">s2_step()</a> on the rendering thread.</p>
 <p>Here lists all functions that need be invoked on the rendering thread in a multi-threading environment:</p><ul>
@@ -400,21 +418,21 @@ Multithreading</h2>
 <li><a class="el" href="a00044.html#a56888e2e39808fdc2abc73bcdeb9efa4">s2_remove_particles_in_trigger()</a></li>
 <li><a class="el" href="a00044.html#a1314f3b04227701c3c4bf66d088dba84">s2_manipulate_particles_in_trigger()</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md40"></a>
+<h2><a class="anchor" id="autotoc_md41"></a>
 Data Hierarchy</h2>
 <p>Soft2D organizes data across several levels.</p><ul>
 <li>World level: This encompasses all parameters in <a class="el" href="a00111.html" title="Structure S2WorldConfig">S2WorldConfig</a>, along with all grid-associated data.</li>
 <li>Body level: This includes material, mobility, bounding boxes etc.</li>
 <li>Particle level: This includes attributes like position, velocity, tag, id, etc.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md41"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 Algorithm Overview</h1>
 <p>This section provides detailed insights into the internal algorithms of the soft2d engine.</p>
-<h2><a class="anchor" id="autotoc_md42"></a>
+<h2><a class="anchor" id="autotoc_md43"></a>
 Updated Lagrangian Method</h2>
 <p>Soft2D is based on the continuum mechanics theory, and employs the updated Lagrangian method for physical simulation. The updated Lagrangian method discretizes the continuum using a Lagrangian (particle) method and calculates the force field on the grid.</p>
 <p><a class="anchor" id="background-grid"></a></p>
-<h3><a class="anchor" id="autotoc_md43"></a>
+<h3><a class="anchor" id="autotoc_md44"></a>
 Background Grid</h3>
 <p>In the updated Lagrangian method, a background grid is required for computing the force acting at every point in continua (bodies). The resolution of the background grid is a critical factor in determining the quality of the simulation. One can adjust the background grid resolution through <a class="el" href="a00111.html#a5a94bf765f39180edbfb99878d82f575" title="The resolution of the world&#39;s background grid.">S2WorldConfig.grid_resolution</a>. <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/background_grid.cpp">Background Grid Example</a> provides a visualization of the background grid. The following figure shows an intuitive comparison of grids with different resolutions (32x32, 64x64, 128x128).</p>
 <div class="image">
@@ -422,11 +440,11 @@ Background Grid</h3>
 <div class="caption">
 Simulate a same scene with different background grid resolutions: 32x32, 64x64, 128x128.</div></div>
     <p><a class="anchor" id="fine-grid-1"></a></p>
-<h3><a class="anchor" id="autotoc_md44"></a>
+<h3><a class="anchor" id="autotoc_md45"></a>
 Fine Grid</h3>
 <p>Besides bodies, both colliders and triggers are discretized into a grid during the simulation. However, to improve the flexibility, soft2d uses a different grid to store colliders and triggers. To distinguish with the background grid, we call the grid storing colliders and triggers as "fine grid". The fine grid's resolution is determined by multiplying <a class="el" href="a00111.html#a6dee35c46886b6230c959d037dee53b6">S2WorldConfig.fine_grid_scale</a> by the resolution of the background grid. See <a class="el" href="a00112.html#fine-grid">Collider - Fine Grid</a> section for more details.</p>
 <p><a class="anchor" id="outworldboundarypolicy"></a></p>
-<h3><a class="anchor" id="autotoc_md45"></a>
+<h3><a class="anchor" id="autotoc_md46"></a>
 OutWorldBoundaryPolicy</h3>
 <p>As the updated Lagrangian method requires a grid for simulation, a body that leaves the world cannot be simulated. Soft2D will either deactivate or remove such bodies. One can specify this behavior via <a class="el" href="a00111.html#aaf14556347ece9045748e79baf3578b5">S2WorldConfig.out_world_boundary_policy</a>.</p>
 <p>We use Axis-Aligned Bounding Boxes (AABB) to check if a body leaves the world (The AABB of a body is the minimal axis-aligned box covering all its particles). When the condition </p><div class="fragment"><div class="line">AABB(body).low_corner.x &lt; world.offset.x ||</div>
@@ -437,28 +455,28 @@ OutWorldBoundaryPolicy</h3>
 <blockquote class="doxtable">
 <p>&zwj;Unlike bodies, by contrast, colliders and triggers can work normally even if they are out of the world. </p>
 </blockquote>
-<h2><a class="anchor" id="autotoc_md46"></a>
+<h2><a class="anchor" id="autotoc_md47"></a>
 Simulating a Large World</h2>
 <p>Despite the need for a background grid, soft2d offers methods for simulating a large world. This can be achieved by adjusting <a class="el" href="a00111.html#a421bbaaa9cf46a1d9e4f86112468147a" title="World&#39;s offset. Indicates the location of the world&#39;s bottom-left corner.">S2WorldConfig.offset</a> and <a class="el" href="a00111.html#a769704adea267e22c82bdf2e091b8f8f">S2WorldConfig.extent</a>.</p>
-<h3><a class="anchor" id="autotoc_md47"></a>
+<h3><a class="anchor" id="autotoc_md48"></a>
 World Offset</h3>
 <p>One can move the world (background grid) by adjusting the world offset. As the result, a larger world is able to be simulated. If a body leaves the world after modifying the world offset, the body will be deactivated or removed according to <a class="el" href="a00111.html#aaf14556347ece9045748e79baf3578b5">S2WorldConfig.out_world_boundary_policy</a>.</p>
 <div class="image">
 <img src="world_offset.gif" alt=""/>
 <div class="caption">
 A demonstration of world offset.</div></div>
-    <h3><a class="anchor" id="autotoc_md48"></a>
+    <h3><a class="anchor" id="autotoc_md49"></a>
 World Extent</h3>
 <p>One can adjust <a class="el" href="a00111.html#a769704adea267e22c82bdf2e091b8f8f">S2WorldConfig.extent</a> to modify the real extent of the grid, which would enable users to simulate physical scenes at different scales. A demonstration of world extent can be found at <a href="https://github.com/taichi-dev/soft2d-release/blob/main/examples/world_extent.cpp">World Extent Exmaple</a>.</p>
 <blockquote class="doxtable">
 <p>&zwj;In soft2d, we employ a uniform background grid for performance consideration. This means that all cells have the same size. As a result, simulating extremely small bodies and extremely large bodies in a same scene can be challenging. </p>
 </blockquote>
 <p><a class="anchor" id="time-integration"></a></p>
-<h2><a class="anchor" id="autotoc_md49"></a>
+<h2><a class="anchor" id="autotoc_md50"></a>
 Time Integration</h2>
 <p>Soft2D utilizes the semi-implicit Euler (a.k.a symplectic Euler) method for time integration. Each step (<a class="el" href="a00044.html#a2938bafe052360874e67c077083c19b8">s2_step()</a>) is further divided into several sub-steps, each with a smaller time step. A call to <code>s2_step(dt)</code> leads to <code>ceil(dt/substep_dt)</code> times of sub-steps.</p>
 <p>Inherently, the semi-implicit Euler method could lead to numerical instability (a.k.a simulation "explosion") if <code>substep_dt</code> or Young's modulus is too large. One can adjust <a class="el" href="a00111.html#a806b7dd96438136e01dd4d637e724276">S2WorldConfig.substep_dt</a> or Young's modulus of the body to avoid the numerical divergence.</p>
-<h1><a class="anchor" id="autotoc_md50"></a>
+<h1><a class="anchor" id="autotoc_md51"></a>
 FAQ</h1>
 <ul>
 <li><p class="startli">Q: Can soft2d contain an empty body?</p>
