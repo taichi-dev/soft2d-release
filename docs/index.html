@@ -17,6 +17,7 @@
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="soft2d.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -24,6 +25,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr id="projectrow">
+  <td id="projectlogo"><img alt="Logo" src="soft2d.svg"/></td>
   <td id="projectalign">
    <div id="projectname">Soft2D
    </div>
@@ -107,12 +109,12 @@ Quick Start</h1>
 <div class="line">  TiArch arch = TiArch::TI_ARCH_VULKAN;</div>
 <div class="line">  ti::Runtime runtime(arch);</div>
 <div class="line"> </div>
-<div class="line">  <a class="code hl_struct" href="a00111.html">S2WorldConfig</a> config;</div>
+<div class="line">  <a class="code hl_struct" href="a00108.html">S2WorldConfig</a> config;</div>
 <div class="line">  <span class="comment">// Specify a proper world configuration.</span></div>
 <div class="line">  <span class="comment">// ...</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Create an empty world.</span></div>
-<div class="line">  <a class="code hl_typedef" href="a00044.html#a8246b88bb3f6b2175c4e608a3c38edc4">S2World</a> world = <a class="code hl_function" href="a00044.html#ac062a4a6be1106b5aaee6bc90e28c619">s2_create_world</a>(arch, runtime, &amp;config);</div>
+<div class="line">  <a class="code hl_typedef" href="a00041.html#a8246b88bb3f6b2175c4e608a3c38edc4">S2World</a> world = <a class="code hl_function" href="a00041.html#ac062a4a6be1106b5aaee6bc90e28c619">s2_create_world</a>(arch, runtime, &amp;config);</div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// Add bodies, colliders or triggers to the world.</span></div>
 <div class="line">  <span class="comment">// ...</span></div>
@@ -120,15 +122,15 @@ Quick Start</h1>
 <div class="line">  <span class="comment">// Simulate the world forward 100 times by a specified time step.</span></div>
 <div class="line">  <span class="keywordtype">float</span> time_step = 2e-3f;</div>
 <div class="line">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 100; ++i) {</div>
-<div class="line">    <a class="code hl_function" href="a00044.html#a2938bafe052360874e67c077083c19b8">s2_step</a>(world, time_step);</div>
+<div class="line">    <a class="code hl_function" href="a00041.html#a2938bafe052360874e67c077083c19b8">s2_step</a>(world, time_step);</div>
 <div class="line">  }</div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="aa00044_html_a2938bafe052360874e67c077083c19b8"><div class="ttname"><a href="a00044.html#a2938bafe052360874e67c077083c19b8">s2_step</a></div><div class="ttdeci">S2_API void S2_API_CALL s2_step(S2World world, float delta_time)</div></div>
-<div class="ttc" id="aa00044_html_a8246b88bb3f6b2175c4e608a3c38edc4"><div class="ttname"><a href="a00044.html#a8246b88bb3f6b2175c4e608a3c38edc4">S2World</a></div><div class="ttdeci">struct S2World_t * S2World</div><div class="ttdef"><b>Definition</b> soft2d_core.h:61</div></div>
-<div class="ttc" id="aa00044_html_ac062a4a6be1106b5aaee6bc90e28c619"><div class="ttname"><a href="a00044.html#ac062a4a6be1106b5aaee6bc90e28c619">s2_create_world</a></div><div class="ttdeci">S2_API S2World S2_API_CALL s2_create_world(TiArch arch, TiRuntime runtime, const S2WorldConfig *config)</div></div>
-<div class="ttc" id="aa00111_html"><div class="ttname"><a href="a00111.html">S2WorldConfig</a></div><div class="ttdoc">Structure S2WorldConfig</div><div class="ttdef"><b>Definition</b> soft2d_core.h:340</div></div>
+<div class="ttc" id="aa00041_html_a2938bafe052360874e67c077083c19b8"><div class="ttname"><a href="a00041.html#a2938bafe052360874e67c077083c19b8">s2_step</a></div><div class="ttdeci">S2_API void S2_API_CALL s2_step(S2World world, float delta_time)</div></div>
+<div class="ttc" id="aa00041_html_a8246b88bb3f6b2175c4e608a3c38edc4"><div class="ttname"><a href="a00041.html#a8246b88bb3f6b2175c4e608a3c38edc4">S2World</a></div><div class="ttdeci">struct S2World_t * S2World</div><div class="ttdef"><b>Definition</b> soft2d_core.h:61</div></div>
+<div class="ttc" id="aa00041_html_ac062a4a6be1106b5aaee6bc90e28c619"><div class="ttname"><a href="a00041.html#ac062a4a6be1106b5aaee6bc90e28c619">s2_create_world</a></div><div class="ttdeci">S2_API S2World S2_API_CALL s2_create_world(TiArch arch, TiRuntime runtime, const S2WorldConfig *config)</div></div>
+<div class="ttc" id="aa00108_html"><div class="ttname"><a href="a00108.html">S2WorldConfig</a></div><div class="ttdoc">Structure S2WorldConfig</div><div class="ttdef"><b>Definition</b> soft2d_core.h:340</div></div>
 </div><!-- fragment --> <blockquote class="doxtable">
 <p>&zwj;Note: The above snippet can not be executed directly as the <code>WorldConfig</code> is not fully specified. A minimal runnable example can be found <a href="https://github.com/taichi-dev/soft2d-release/blob/main/tests/minimal.cpp#L12-L41">here</a>. </p>
 </blockquote>
