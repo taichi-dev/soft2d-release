@@ -12,7 +12,7 @@
 #pragma once
 
 #ifndef S2_VERSION
-#define S2_VERSION 2000
+#define S2_VERSION 2001
 #endif // S2_VERSION
 
 #include <soft2d/soft2d.h>
