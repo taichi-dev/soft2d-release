@@ -15,9 +15,11 @@ Here we list the ABI compatibility of soft2d binary files:
 * Android: arm64-v8a
 
 ## User Examples
- ![A preview of user examples](./images/examples.png)
+ ![A preview of user examples.](./images/examples.png)
 
 Under the `examples/` directory, we provide a collection of user examples demonstrating the capabilities of soft2d. **These examples can run on Linux and Windows with Vulkan installed.** All examples have been tested on Ubuntu 20.04/22.04 and Windows 10 with Visual Studio 2022. Follow the steps below to build and run these examples.
+
+Video-version of these examples can be found on [Soft2D YouTube channel](https://www.youtube.com/@Soft2D).
 
 ### Project Cloning
 * Use `git-lfs` to clone binary files correctly.
