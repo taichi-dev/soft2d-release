@@ -13,8 +13,6 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-
-
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct BodyController : public App {

@@ -11,8 +11,6 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-
-
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 // A user-defined callback function to remove all particles in a trigger

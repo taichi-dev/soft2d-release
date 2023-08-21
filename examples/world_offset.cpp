@@ -39,8 +39,6 @@ std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
   return gear_points;
 }
 
-
-
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct WorldOffset : public App {
