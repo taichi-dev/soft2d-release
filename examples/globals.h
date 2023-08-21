@@ -23,3 +23,8 @@ S2WorldConfig default_world_config{
     .collision_penalty_force_scale_along_velocity_dir = 0.1f,
     .fine_grid_scale = 4,
 };
+
+
+constexpr int win_width = 800;
+constexpr int win_height = 800;
+constexpr float preset_point_size = 3.0f;

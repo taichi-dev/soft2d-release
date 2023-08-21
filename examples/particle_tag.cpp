@@ -11,8 +11,8 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-constexpr int win_width = 800;
-constexpr int win_height = 800;
+
+
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct ParticleTag : public App {
@@ -100,7 +100,7 @@ struct ParticleTag : public App {
         TI_NULL_HANDLE);
 
     draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
+                      .point_size(preset_point_size)
                       .color(glm::vec3(1, 0.5, 0))
                       .build();
     draw_collider_texture = runtime.draw_texture(collider_texture_)

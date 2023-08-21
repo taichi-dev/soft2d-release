@@ -37,8 +37,8 @@ std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
   return gear_points;
 }
 
-constexpr int win_width = 800;
-constexpr int win_height = 800;
+
+
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct Mixer : public App {
@@ -181,7 +181,7 @@ struct Mixer : public App {
         TI_NULL_HANDLE);
 
     draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
+                      .point_size(preset_point_size)
                       .color(glm::vec3(1, 0.5, 0))
                       .build();
     draw_collider_texture = runtime.draw_texture(collider_texture_)

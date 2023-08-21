@@ -10,8 +10,8 @@
 using namespace ti::aot_demo;
 using namespace std;
 
-constexpr int win_width = 800;
-constexpr int win_height = 800;
+
+
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct BasicShapes : public App {
@@ -126,7 +126,7 @@ struct BasicShapes : public App {
     x_ = runtime.allocate_vertex_buffer(config.max_allowed_particle_num, 2);
 
     draw_points = runtime.draw_points(x_)
-                      .point_size(3.0f)
+                      .point_size(preset_point_size)
                       .color(glm::vec3(1, 0.5, 0))
                       .build();
     // Renderer initialization ends

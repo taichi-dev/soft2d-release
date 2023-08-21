@@ -39,8 +39,8 @@ std::vector<S2Vec2> make_gear(int n, float r, float len, float width = 0.5f) {
   return gear_points;
 }
 
-constexpr int win_width = 800;
-constexpr int win_height = 800;
+
+
 constexpr float win_fov = 1.0 * win_width / win_height;
 
 struct WorldOffset : public App {
@@ -258,7 +258,7 @@ struct WorldOffset : public App {
     glm::vec2 offset = {w_offset.x, w_offset.y};
     glm::vec2 extent = {w_extent.x, w_extent.y};
     draw_points = runtime.draw_points(x_, offset, extent)
-                      .point_size(3.0f)
+                      .point_size(preset_point_size)
                       .color(glm::vec3(1, 0.5, 0))
                       .build();
     // Set up orthogonal view
